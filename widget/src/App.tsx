@@ -123,7 +123,16 @@ function TweakerModal({
             placeholder="e.g. 1, 10, 100"
             style={{ width: '100%', padding: '0.8rem 1rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff', fontSize: '1.05rem', outline: 'none', fontFamily: 'monospace' }}
           />
-          <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '0.6rem' }}>Enter coefficients separated by commas or spaces.</div>
+          <div style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)', padding: '1rem', borderRadius: '12px', marginTop: '1.5rem', marginBottom: '0.5rem' }}>
+            <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: '#93c5fd', fontWeight: 600 }}>How it works (Polynomial Form)</p>
+            <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: '#cbd5e1', lineHeight: 1.5 }}>
+              Enter array coefficients for decreasing powers of <strong>s</strong>. <br/>
+              Example: entering <code style={{ color: '#fde047', background: 'rgba(0,0,0,0.3)', padding: '2px 6px', borderRadius: '4px' }}>1, 5, 6</code> mathematically creates <strong>s² + 5s + 6</strong>.
+            </p>
+            <p style={{ margin: 0, fontSize: '0.75rem', color: '#94a3b8', lineHeight: 1.4 }}>
+              <em>Note: Linear control systems rely on rational polynomials in s. Non-linear terms like ln(s) or sin(s) cannot be analyzed with LTI tools like Bode or Root Locus.</em>
+            </p>
+          </div>
         </div>
 
         <button onClick={() => onApply(parsedNum, parsedDen)} style={{
