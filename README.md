@@ -1,44 +1,69 @@
 # Schemo
 
-**Schemo** is a dual-engine engineering math API designed for LLMs (Claude and ChatGPT). It allows AI assistants to perform complex control systems calculations (Bode plots, Nyquist, Step Responses) and draw electrical circuits natively in the chat.
+<p align="center">
+  <img src="schemo-logo.png" alt="Schemo Logo" width="180" />
+</p>
+
+**Schemo** is an AI-powered engineering visualization platform that gives Claude and ChatGPT the ability to generate professional control systems plots and electrical circuit schematics — directly inside the chat.
+
+Students don't need to install Python, MATLAB, or any local tools. Everything runs in the cloud.
 
 ## Features
 
-1. **System Analysis (`render_system_plot`)**: Built on the industry-standard `python-control` library. Pass numerator and denominator polynomials, and it computes:
-   - Bode Plots
-   - Step / Impulse Responses
-   - Root Locus
-   - Nyquist Plots
-2. **Circuit Schematics (`render_circuit`)**: Give the LLM coordinates, and it renders a professional circuit schematic using `schemdraw`.
-3. **Interactive Dashboard**: Math visualizations are accompanied by a deep link to an interactive, client-side Plotly dashboard for zooming, panning, and precise data inspection.
+### 1. System Analysis (`schemo:plot`)
+Built on the `python-control` library. Pass transfer function coefficients H(s) = num(s)/den(s) and get:
+- **Bode Plots** - Magnitude and phase frequency response
+- **Step Response** - Time-domain step input analysis
+- **Impulse Response** - Time-domain impulse input analysis
+- **Nyquist Plots** - Stability analysis in the complex plane
+- **Root Locus** - Pole migration as gain varies
 
-## Architecture & Deployment
+### 2. Circuit Schematics (`schemo:circuit`)
+Give component types and 2D coordinates, and Schemo renders publication-quality circuit diagrams using `schemdraw`. Supports resistors, capacitors, inductors, diodes, voltage/current sources, ground, and wire connections.
 
-Schemo is designed for zero-friction student use. It is split into two cloud-hosted components:
+### 3. Interactive Dashboard
+Every plot comes with a deep link to an interactive Plotly dashboard (hosted on Cloudflare Pages) where students can zoom, pan, and inspect data points. Transfer functions render with proper LaTeX math via KaTeX.
 
-1. **The Math Backend (Python / FastMCP)**: Hosted on Render (or Railway/Heroku).
-   - Provides a Server-Sent Events (SSE) endpoint for native MCP integrations (`/mcp/sse`).
-2. **The Dashboard Frontend (React / Vite)**: Hosted on Cloudflare Pages.
-   - Computes math client-side using `control.ts` directly from URL parameters.
+## Architecture
 
-### How the Flow Works (Example)
-Imagine a student asks the AI: *"Plot the Bode response for numerator 100 and denominator 1, 10, 100."*
+Schemo is split into two cloud-hosted components with zero local dependencies for students:
 
-1. **The Request:** The AI (Claude or ChatGPT) sends this request to the **Python Backend**.
-2. **The Calculation:** The Backend solves the math and draws a physical PNG image of the graph. It also generates a "Smart Link" containing the math data.
-3. **The Response:** The Backend sends the PNG image and the Smart Link back to the AI.
-4. **The Display (Claude):** Claude displays the static PNG image natively in the chat, along with a link. The student clicks the link, which opens the **React Dashboard** in a new tab for interactive zooming.
-5. **The Display (ChatGPT):** ChatGPT recognizes the Smart Link as a special UI widget. It takes the **React Dashboard** and embeds it directly *inside* the chat window as an interactive mini-app!
+```
+┌─────────────────────┐       ┌──────────────────────────────────┐
+│   Claude Desktop    │──SSE──│  Python Backend (Render)         │
+│   or ChatGPT        │       │  api-schemo.shaniai.tech         │
+└─────────────────────┘       │                                  │
+                              │  FastAPI + FastMCP               │
+                              │  ├─ /mcp/sse    (Claude SSE)     │
+                              │  ├─ /api/plot   (ChatGPT REST)   │
+                              │  ├─ /api/circuit(ChatGPT REST)   │
+                              │  └─ /favicon.ico                 │
+                              └──────────────────────────────────┘
+                                            │
+                                    generates dashboard URL
+                                            │
+                              ┌──────────────────────────────────┐
+                              │  React Dashboard (Cloudflare)    │
+                              │  schemo.shaniai.tech              │
+                              │                                  │
+                              │  Vite + React + Plotly + KaTeX   │
+                              │  Client-side math (control.ts)   │
+                              └──────────────────────────────────┘
+```
 
-## Zero-Friction Installation
+### How It Works
 
-Because the backend is hosted in the cloud, students do not need to install Python or run any local code!
+1. **Student asks:** "Plot the step response for H(s) = 100/(s² + 10s + 100)"
+2. **AI calls Schemo:** Sends numerator `[100]` and denominator `[1, 10, 100]` to the backend
+3. **Backend computes:** Generates a matplotlib PNG + a dashboard URL with encoded parameters
+4. **AI displays:** Shows the static PNG inline in chat + a bold link to the interactive dashboard
+5. **Student explores:** Clicks the link → opens the React dashboard with interactive Plotly charts, KaTeX-rendered equations, and tab switching between all 5 plot types
 
-### 1. ChatGPT (For Students)
-Students **do not** need to edit any configuration files or write code to use Schemo in ChatGPT! Once you (the developer) publish Schemo as a "ChatGPT App", students can simply search for it in the store and use it instantly.
+## Installation
 
-### 2. Claude Desktop (For Students)
-To use Schemo inside the Claude Desktop application, students simply add this snippet to their `claude_desktop_config.json` file. It will securely connect to the cloud API over SSE:
+### For Students (Claude Desktop)
+
+Add this to your `claude_desktop_config.json`:
 
 ```json
 {
@@ -47,7 +72,8 @@ To use Schemo inside the Claude Desktop application, students simply add this sn
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/client-sse",
+        "supergateway",
+        "--sse",
         "https://api-schemo.shaniai.tech/mcp/sse"
       ]
     }
@@ -55,18 +81,70 @@ To use Schemo inside the Claude Desktop application, students simply add this sn
 }
 ```
 
-## Local Development (Optional)
+> **Recommended:** Add this to Claude Desktop → Customize → "How would you like Claude to respond?":
+>
+> *"For any request involving transfer functions, Bode plots, step response, impulse response, Nyquist plots, root locus, or control systems visualization — ALWAYS use the Schemo integration. Never create plots manually with code artifacts."*
 
-If you wish to run the backend locally:
+### For Students (ChatGPT)
+
+Once published as a ChatGPT App, students can search for "Schemo" in the ChatGPT store and use it instantly — no configuration needed.
+
+### For Developers (Local Setup)
 
 ```bash
+# Clone and set up
+git clone https://github.com/sohampawar1866/schemo.git
+cd schemo
+
+# Python backend
 python -m venv .venv
 source .venv/bin/activate
 pip install -e .
 
-# Run as a local HTTP API (port 8000)
+# Run as HTTP API (port 8000)
 python src/schemo_server/server.py
 
-# Run in stdio mode for local Claude desktop debugging
+# Run in stdio mode (local Claude Desktop debugging)
 python src/schemo_server/server.py --stdio
+
+# Frontend dashboard
+cd widget
+npm install
+npm run dev
 ```
+
+## Tech Stack
+
+| Component | Technology |
+|-----------|-----------|
+| Backend | Python, FastAPI, FastMCP, python-control, matplotlib, schemdraw |
+| Frontend | React, Vite, TypeScript, Plotly.js, KaTeX |
+| Backend Hosting | Render (Docker) |
+| Frontend Hosting | Cloudflare Pages |
+| Domain | shaniai.tech (Cloudflare DNS) |
+| AI Protocols | MCP (Claude SSE), REST API (ChatGPT Custom Actions) |
+
+## Project Structure
+
+```
+Schemo/
+├── src/schemo_server/
+│   ├── server.py           # FastAPI + FastMCP entry point
+│   ├── chatgpt_widget.py   # ChatGPT iframe bridge (ui:// resources)
+│   ├── circuit_renderer.py # schemdraw circuit rendering
+│   └── __init__.py
+├── widget/
+│   ├── src/
+│   │   ├── App.tsx          # React dashboard with KaTeX + Plotly
+│   │   └── lib/control.ts   # Client-side control systems math
+│   ├── public/              # Favicons and icons
+│   └── index.html           # SEO-optimized entry with OG tags
+├── Dockerfile               # Backend container for Render
+├── pyproject.toml            # Python dependencies
+├── schemo-logo.png           # Brand logo
+└── README.md
+```
+
+## License
+
+MIT

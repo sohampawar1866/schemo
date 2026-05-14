@@ -140,7 +140,11 @@ def core_render_system_plot(numerator: list[float], denominator: list[float], pl
 
 @app.post("/api/plot")
 def api_plot(req: PlotRequest):
-    """REST endpoint for ChatGPT Custom Action to generate plots."""
+    """Generate engineering plots for transfer functions H(s).
+
+    Supports: Bode plot, step response, impulse response, Nyquist plot, root locus.
+    Returns a base64-encoded PNG image and an interactive dashboard URL.
+    """
     try:
         b64_png, dashboard_url = core_render_system_plot(req.numerator, req.denominator, req.plot_type)
         return {
@@ -157,7 +161,11 @@ def api_plot(req: PlotRequest):
 
 @app.post("/api/circuit")
 def api_circuit(elements: list[CircuitElement]):
-    """REST endpoint for ChatGPT Custom Action to render circuits."""
+    """Render an electrical circuit schematic from component coordinates.
+
+    Supports: resistor, capacitor, inductor, diode, voltage source, current source, ground, wire.
+    Returns a base64-encoded PNG image of the circuit diagram.
+    """
     try:
         if not elements:
             raise ValueError("Elements list cannot be empty.")
