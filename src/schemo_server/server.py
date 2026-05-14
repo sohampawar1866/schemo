@@ -169,9 +169,7 @@ def api_plot(req: PlotRequest):
         return {
             "success": True,
             "image_url": image_url,
-            "image_base64": b64_png,
             "dashboard_url": dashboard_url,
-            "openai_output_template": dashboard_url,
             "message": f"Successfully generated {req.plot_type.value} plot."
         }
     except Exception as e:
@@ -217,7 +215,6 @@ def api_circuit(req: CircuitRequest):
         return {
             "success": True,
             "image_url": image_url,
-            "image_base64": b64_png,
             "message": f"Rendered circuit with {len(elements)} elements."
         }
     except Exception as e:
