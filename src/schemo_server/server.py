@@ -24,8 +24,9 @@ from schemo_server.circuit_renderer import CircuitElement, render_circuit_to_ima
 from schemo_server.chatgpt_widget import register_chatgpt_resources
 
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from pydantic import BaseModel
+import json
 import uvicorn
 
 # ---------------------------------------------------------------------------
@@ -138,17 +139,36 @@ def core_render_system_plot(numerator: list[float], denominator: list[float], pl
 # ChatGPT REST API Endpoints
 # ---------------------------------------------------------------------------
 
+@app.get("/api/plot.png")
+def get_api_plot_png(plot_type: PlotType, num: str, den: str):
+    """Returns the raw PNG image of a plot."""
+    try:
+        numerator = [float(x) for x in num.split(",")]
+        denominator = [float(x) for x in den.split(",")]
+        b64_png, _ = core_render_system_plot(numerator, denominator, plot_type)
+        png_bytes = base64.b64decode(b64_png)
+        return Response(content=png_bytes, media_type="image/png")
+    except Exception as e:
+        logger.error("get_api_plot_png failed: %s", e)
+        raise HTTPException(status_code=400, detail=str(e))
+
 @app.post("/api/plot")
 def api_plot(req: PlotRequest):
     """Generate engineering plots for transfer functions H(s).
 
     Supports: Bode plot, step response, impulse response, Nyquist plot, root locus.
-    Returns a base64-encoded PNG image and an interactive dashboard URL.
+    Returns an image URL and an interactive dashboard URL.
     """
     try:
         b64_png, dashboard_url = core_render_system_plot(req.numerator, req.denominator, req.plot_type)
+        
+        num_str = ",".join(map(str, req.numerator))
+        den_str = ",".join(map(str, req.denominator))
+        image_url = f"https://api-schemo.shaniai.tech/api/plot.png?plot_type={req.plot_type.value}&num={num_str}&den={den_str}"
+
         return {
             "success": True,
+            "image_url": image_url,
             "image_base64": b64_png,
             "dashboard_url": dashboard_url,
             "openai_output_template": dashboard_url,
@@ -162,12 +182,25 @@ def api_plot(req: PlotRequest):
 class CircuitRequest(BaseModel):
     elements: list[CircuitElement]
 
+@app.get("/api/circuit.png")
+def get_api_circuit_png(data: str):
+    """Returns the raw PNG image of a circuit from base64 JSON payload."""
+    try:
+        json_str = base64.urlsafe_b64decode(data).decode('utf-8')
+        elements_data = json.loads(json_str)
+        elements = [CircuitElement(**e) for e in elements_data]
+        png_bytes = render_circuit_to_image(elements)
+        return Response(content=png_bytes, media_type="image/png")
+    except Exception as e:
+        logger.error("get_api_circuit_png failed: %s", e)
+        raise HTTPException(status_code=400, detail=str(e))
+
 @app.post("/api/circuit")
 def api_circuit(req: CircuitRequest):
     """Render an electrical circuit schematic from component coordinates.
 
     Supports: resistor, capacitor, inductor, diode, voltage source, current source, ground, wire.
-    Returns a base64-encoded PNG image of the circuit diagram.
+    Returns an image URL of the circuit diagram.
     """
     elements = req.elements
     try:
@@ -175,8 +208,15 @@ def api_circuit(req: CircuitRequest):
             raise ValueError("Elements list cannot be empty.")
         png_bytes = render_circuit_to_image(elements)
         b64_png = base64.standard_b64encode(png_bytes).decode("utf-8")
+        
+        # Build image URL using urlsafe base64 of the elements JSON
+        json_str = json.dumps([e.dict() for e in elements])
+        data_b64 = base64.urlsafe_b64encode(json_str.encode('utf-8')).decode('utf-8')
+        image_url = f"https://api-schemo.shaniai.tech/api/circuit.png?data={data_b64}"
+
         return {
             "success": True,
+            "image_url": image_url,
             "image_base64": b64_png,
             "message": f"Rendered circuit with {len(elements)} elements."
         }
