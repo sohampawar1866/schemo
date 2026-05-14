@@ -199,10 +199,10 @@ function App() {
       fontSize: '0.9rem'
     }}>
       <button onClick={() => setActivePage('about')} style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', transition: 'color 0.2s' }}>About Us</button>
+      <button onClick={() => setActivePage('contact')} style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', transition: 'color 0.2s' }}>Contact</button>
       <button onClick={() => setActivePage('support')} style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', transition: 'color 0.2s' }}>Support</button>
       <button onClick={() => setActivePage('collaborate')} style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', transition: 'color 0.2s' }}>Collaborate</button>
-      <button onClick={() => setActivePage('contact')} style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', transition: 'color 0.2s' }}>Contact</button>
-      <button onClick={() => setActivePage('privacy')} style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', transition: 'color 0.2s' }}>Privacy Policy</button>
+      <button onClick={() => setActivePage('privacy')} style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', transition: 'color 0.2s' }}>Privacy & Policy</button>
     </footer>
   );
 

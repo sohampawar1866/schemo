@@ -94,7 +94,7 @@ export function PageModal({ page, onClose }: { page: PageType; onClose: () => vo
 function PrivacyPolicy() {
   return (
     <>
-      <h2 style={{ fontSize: '1.8rem', marginBottom: '1.5rem', color: '#f8fafc' }}>Privacy Policy</h2>
+      <h2 style={{ fontSize: '1.8rem', marginBottom: '1.5rem', color: '#f8fafc' }}>Privacy & Policy</h2>
       <p style={{ marginBottom: '1rem', color: '#cbd5e1' }}>
         At <strong>Schemo</strong>, your privacy and data security are our top priority. We believe in transparency and building tools that respect our users.
       </p>
@@ -109,6 +109,10 @@ function PrivacyPolicy() {
       <h3 style={{ fontSize: '1.2rem', margin: '1.5rem 0 0.8rem', color: '#e2e8f0' }}>3. AI Integrations</h3>
       <p style={{ marginBottom: '1rem', color: '#cbd5e1' }}>
         When using Schemo via Claude Desktop or ChatGPT, the transfer function equations you generate are processed ephemerally by our backend API solely to generate the visual plot and dashboard URL. We do not log or store the equations you analyze.
+      </p>
+      <h3 style={{ fontSize: '1.2rem', margin: '1.5rem 0 0.8rem', color: '#e2e8f0' }}>4. Limitation of Liability</h3>
+      <p style={{ marginBottom: '1rem', color: '#cbd5e1' }}>
+        Schemo is provided "as is" and without any warranties. The developer is <strong>not responsible or liable</strong> for any damages, losses, or issues arising from the use of this tool. This includes, but is not limited to: incorrect mathematical calculations, academic penalties, financial losses, or <strong>excessive API credit usage</strong> incurred when using Schemo via third-party AI assistants (like Claude or ChatGPT). You are solely responsible for monitoring your own AI API limits and usage.
       </p>
       <p style={{ marginTop: '2rem', fontSize: '0.9rem', color: '#94a3b8' }}>
         Last updated: May 2026
@@ -218,7 +222,7 @@ function Collaborate() {
           }}
         >
           <Mail size={24} color="#f472b6" />
-          <span style={{ fontWeight: 500 }}>Email Me</span>
+          <span style={{ fontWeight: 500, wordBreak: 'break-all' }}>sohampawar1866@gmail.com</span>
         </a>
         
         <a
