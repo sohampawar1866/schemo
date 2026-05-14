@@ -176,7 +176,7 @@ def api_circuit(elements: list[CircuitElement]):
 # Claude MCP Tools
 # ---------------------------------------------------------------------------
 
-@mcp.tool()
+@mcp.tool(name="plot")
 def render_system_plot(
     numerator: list[float],
     denominator: list[float],
@@ -236,7 +236,7 @@ def render_system_plot(
         plt.close("all")
         return f"Error plotting system: {str(e)}"
 
-@mcp.tool()
+@mcp.tool(name="circuit")
 def render_circuit(elements: list[CircuitElement]):
     """Render a circuit schematic and return a PNG image.
 
