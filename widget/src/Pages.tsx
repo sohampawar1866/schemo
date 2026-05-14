@@ -5,7 +5,7 @@ export type PageType = 'privacy' | 'about' | 'support' | 'contact' | 'collaborat
 
 const BuyMeACoffee = () => (
   <a
-    href="https://www.buymeacoffee.com/"
+    href="https://buymeacoffee.com/sohampawar"
     target="_blank"
     rel="noopener noreferrer"
     style={{
