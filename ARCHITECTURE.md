@@ -7,17 +7,19 @@ This document breaks down the core components of the Schemo repository. To provi
 ## 1. The Engine: API & MCP Server (`src/schemo_server/`)
 
 ### `server.py`
-- **Purpose:** The core entry point for the backend. It uses FastAPI to serve standard REST endpoints and `FastMCP` to serve Model Context Protocol endpoints.
+- **Purpose:** The core entry point for the backend. It uses `FastMCP` to serve Model Context Protocol endpoints over SSE (Server-Sent Events) for both Claude and ChatGPT Apps.
 - **Connections:** This server runs on a cloud provider (e.g., Render) at `api-schemo.shaniai.tech`.
 - **Logic:** 
-  - **OpenAPI REST:** Defines Pydantic models to expose `/api/plot` and `/api/circuit` for ChatGPT Custom GPT Actions.
-  - **MCP SSE:** Mounts a FastMCP Server-Sent Events (SSE) app at `/mcp` allowing Claude Desktop to connect remotely via `npx @modelcontextprotocol/client-sse`.
+  - **MCP SSE:** Mounts a FastMCP SSE app at `/mcp` allowing AI clients to connect remotely.
   - **Math Engine:** Uses `python-control` and `matplotlib` to generate static fallback PNGs encoded in Base64.
-  - **ChatGPT Widget Linking:** Returns the `openai/outputTemplate` metadata tag to trigger ChatGPT's interactive iframe widgets.
+  - **ChatGPT Widget Linking:** Returns the `openai/outputTemplate` metadata tag pointing to an internal `ui://` resource to trigger ChatGPT's interactive iframe widgets.
+
+### `chatgpt_widget.py`
+- **Purpose:** An isolated bridge designed strictly to satisfy ChatGPT's UI security requirements.
+- **Logic:** It registers a `ui://dashboard/{plot_type}/{num}/{den}` MCP Resource. When ChatGPT requests this resource, the backend returns a lightweight HTML wrapper containing an `<iframe>` that secretly loads the actual Cloudflare Pages React dashboard. This keeps the backend logic totally separated from the frontend.
 
 ### `circuit_renderer.py`
-- **Purpose:** A utility module dedicated to interfacing with the `schemdraw` library.
-- **Logic:** Iterates over the components provided by the LLM and places them on a 2D grid, exporting the final drawing to a raw PNG byte string.
+- **Purpose:** A utility module dedicated to interfacing with the `schemdraw` library to draw PNG circuit schematics.
 
 ---
 
@@ -25,7 +27,7 @@ This document breaks down the core components of the Schemo repository. To provi
 
 - **Purpose:** An interactive, dark-mode engineering dashboard for exploring generated plots. Hosted globally on Cloudflare Pages (`schemo.shaniai.tech`).
 - **Logic:** 
-  - Entirely stateless. It receives transfer function data via URL parameters (e.g., `?system=bode&num=100&den=1,10,100`).
+  - Entirely stateless. It receives transfer function data via URL parameters.
   - Calculates complex math (Bode, Nyquist, Root Locus) entirely client-side using a custom TypeScript library (`widget/src/lib/control.ts`), eliminating latency and the need to communicate with the Python backend.
   - Renders professional SVG charts using `Plotly.js`.
 
@@ -33,8 +35,11 @@ This document breaks down the core components of the Schemo repository. To provi
 
 ## 3. Configuration
 
+### `Dockerfile`
+- Used to easily containerize and deploy the Python backend to cloud platforms like Render or Railway.
+
 ### `pyproject.toml`
-- Defines the Python backend dependencies. It includes math libraries (`control`, `numpy`, `scipy`, `matplotlib`) and web server infrastructure (`fastapi`, `uvicorn`, `sse-starlette`, `pydantic`).
+- Defines the Python backend dependencies. It includes math libraries (`control`, `numpy`, `scipy`, `matplotlib`) and web server infrastructure (`fastapi`, `uvicorn`, `sse-starlette`).
 
 ### `widget/package.json`
-- Defines the React frontend. Intentionally stripped of heavy MCP SDK libraries to keep the bundle size small, utilizing only `react`, `react-dom`, and `plotly.js`.
+- Defines the React frontend. Intentionally stripped of heavy libraries to keep the bundle size small, utilizing only `react`, `react-dom`, and `plotly.js`.
