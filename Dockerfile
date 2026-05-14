@@ -20,5 +20,8 @@ COPY src/ /app/src/
 # Expose the SSE port (fastmcp default for SSE is usually 8000)
 EXPOSE 8000
 
-# Run the server via standard python command (defaults to Uvicorn cloud mode)
+# Set Python path so it finds the schemo_server module
+ENV PYTHONPATH="/app/src"
+
+# Run the server via standard python command
 CMD ["python", "src/schemo_server/server.py"]
