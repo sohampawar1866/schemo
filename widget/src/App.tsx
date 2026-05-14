@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Plot from 'react-plotly.js';
+import katex from 'katex';
+import 'katex/dist/katex.min.css';
 import {
   computeBode,
   computeNyquist,
@@ -26,20 +28,36 @@ function parseCoeffs(str: string): number[] {
   return str.split(',').map(Number).filter((n) => !isNaN(n));
 }
 
-function formatTF(num: number[], den: number[]): string {
-  const fmt = (coeffs: number[]) =>
-    coeffs
-      .map((c, i) => {
-        const power = coeffs.length - 1 - i;
-        const coeff = Math.abs(c);
-        const sign = c < 0 ? '−' : i > 0 ? '+' : '';
-        if (power === 0) return `${sign} ${coeff}`;
-        if (power === 1) return `${sign} ${coeff === 1 ? '' : coeff}s`;
-        return `${sign} ${coeff === 1 ? '' : coeff}s^${power}`;
-      })
-      .join(' ')
-      .trim();
-  return `H(s) = (${fmt(num)}) / (${fmt(den)})`;
+/** Build a LaTeX polynomial string from coefficients [a_n, ..., a_0] */
+function polyToLatex(coeffs: number[]): string {
+  const terms: string[] = [];
+  for (let i = 0; i < coeffs.length; i++) {
+    const c = coeffs[i];
+    if (c === 0) continue;
+    const power = coeffs.length - 1 - i;
+    const absC = Math.abs(c);
+    const sign = c < 0 ? '-' : terms.length > 0 ? '+' : '';
+
+    let term = '';
+    if (power === 0) {
+      term = `${absC}`;
+    } else if (power === 1) {
+      term = absC === 1 ? 's' : `${absC}s`;
+    } else {
+      term = absC === 1 ? `s^{${power}}` : `${absC}s^{${power}}`;
+    }
+    terms.push(`${sign}${term}`);
+  }
+  return terms.join(' ') || '0';
+}
+
+/** Render transfer function as KaTeX HTML */
+function renderTFLatex(num: number[], den: number[]): string {
+  const latex = `H(s) = \\dfrac{${polyToLatex(num)}}{${polyToLatex(den)}}`;
+  return katex.renderToString(latex, {
+    throwOnError: false,
+    displayMode: true,
+  });
 }
 
 function App() {
@@ -50,6 +68,8 @@ function App() {
   const den = parseCoeffs(params.get('den') || '1,1');
 
   const [activePlot, setActivePlot] = useState<PlotType>(plotType);
+
+  const tfHtml = useMemo(() => renderTFLatex(num, den), [num.toString(), den.toString()]);
 
   // Compute all plot data client-side
   const bode = useMemo(() => computeBode(num, den), [num.toString(), den.toString()]);
@@ -78,18 +98,14 @@ function App() {
           background: 'linear-gradient(90deg, #60a5fa, #a78bfa, #f472b6)',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
-          margin: '0 0 0.4rem 0',
+          margin: '0 0 0.8rem 0',
         }}>
           Schemo
         </h1>
-        <p style={{
-          color: '#94a3b8',
-          fontSize: '0.85rem',
-          margin: 0,
-          fontFamily: "'JetBrains Mono', monospace",
-        }}>
-          {formatTF(num, den)}
-        </p>
+        <div
+          style={{ color: '#c8d6e5', fontSize: '1.1rem' }}
+          dangerouslySetInnerHTML={{ __html: tfHtml }}
+        />
       </header>
 
       {/* Tab Bar */}

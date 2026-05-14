@@ -8,6 +8,7 @@ to AI assistants via the Model Context Protocol (Claude) and REST (ChatGPT).
 import base64
 import logging
 import io
+import os
 import argparse
 from enum import Enum
 
@@ -23,6 +24,7 @@ from schemo_server.circuit_renderer import CircuitElement, render_circuit_to_ima
 from schemo_server.chatgpt_widget import register_chatgpt_resources
 
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import uvicorn
 
@@ -264,6 +266,14 @@ def render_circuit(elements: list[CircuitElement]):
 @app.get("/")
 def health_check():
     return {"status": "Schemo API is running. MCP SSE available at /mcp/sse."}
+
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon():
+    """Serve the Schemo logo as favicon for browser tabs."""
+    icon_path = os.path.join(os.path.dirname(__file__), "..", "..", "schemo-logo.png")
+    if os.path.exists(icon_path):
+        return FileResponse(icon_path, media_type="image/png")
+    return FileResponse(os.path.join(os.path.dirname(__file__), "..", "..", "widget", "public", "favicon.ico"), media_type="image/x-icon")
 
 # Register ChatGPT MCP Resources before mounting
 register_chatgpt_resources(mcp)
