@@ -159,13 +159,17 @@ def api_plot(req: PlotRequest):
         plt.close("all")
         raise HTTPException(status_code=400, detail=str(e))
 
+class CircuitRequest(BaseModel):
+    elements: list[CircuitElement]
+
 @app.post("/api/circuit")
-def api_circuit(elements: list[CircuitElement]):
+def api_circuit(req: CircuitRequest):
     """Render an electrical circuit schematic from component coordinates.
 
     Supports: resistor, capacitor, inductor, diode, voltage source, current source, ground, wire.
     Returns a base64-encoded PNG image of the circuit diagram.
     """
+    elements = req.elements
     try:
         if not elements:
             raise ValueError("Elements list cannot be empty.")
