@@ -208,26 +208,34 @@ function App() {
 
   if (isEmptyURL) {
     return (
-      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #1e1b4b 0%, #2e1065 50%, #064e3b 100%)', color: '#e2e8f0', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #1e2030 0%, #2a1b38 50%, #15323a 100%)', color: '#e2e8f0', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem', fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
-          <h1 style={{ fontSize: '3rem', fontWeight: 800, background: 'linear-gradient(90deg, #fde047, #f9a8d4, #93c5fd)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '1rem' }}>Schemo</h1>
-          <p style={{ fontSize: '1.2rem', color: '#cbd5e1', marginBottom: '3rem', textAlign: 'center', maxWidth: '500px' }}>Interactive engineering visualizations. Claude and ChatGPT use this under the hood, but you can play with it directly!</p>
+          <h1 style={{ fontSize: '3.5rem', fontWeight: 800, color: '#f8fafc', marginBottom: '1rem', letterSpacing: '-1px' }}>Schemo</h1>
+          <p style={{ fontSize: '1.2rem', color: '#94a3b8', marginBottom: '3rem', textAlign: 'center', maxWidth: '600px', lineHeight: 1.6 }}>
+            The professional visualization engine for control systems. Explore interactive Bode, Nyquist, and Root Locus plots directly in your browser, or generate them instantly via Claude and ChatGPT.
+          </p>
           
-          <div style={{ background: 'rgba(255,255,255,0.05)', padding: '2rem', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)', width: '100%', maxWidth: '600px' }}>
-            <h3 style={{ marginTop: 0, marginBottom: '1.5rem', color: '#e2e8f0' }}>Try an example:</h3>
+          <div style={{ background: 'rgba(255,255,255,0.03)', padding: '2.5rem', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', width: '100%', maxWidth: '600px' }}>
+            <h3 style={{ marginTop: 0, marginBottom: '1.5rem', color: '#e2e8f0', fontSize: '1.2rem', fontWeight: 600 }}>Explore example systems</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <button onClick={() => updateURL([100], [1, 10, 100], 'step')} style={{ padding: '1rem', background: 'rgba(255,255,255,0.08)', border: 'none', borderRadius: '12px', color: '#fff', cursor: 'pointer', textAlign: 'left', fontSize: '1rem', transition: 'background 0.2s' }}>
-                <strong>Classic Underdamped System</strong> <span style={{ color: '#94a3b8', fontSize: '0.9rem', marginLeft: '0.5rem' }}>H(s) = 100 / (s² + 10s + 100)</span>
+              <button onClick={() => updateURL([100], [1, 10, 100], 'step')} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.2rem 1.5rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', color: '#fff', cursor: 'pointer', textAlign: 'left', fontSize: '1.05rem', transition: 'all 0.2s', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                <strong style={{ fontWeight: 600 }}>Standard 2nd Order System</strong> 
+                <span style={{ color: '#94a3b8', fontSize: '0.9rem', fontFamily: 'monospace' }}>H(s) = 100 / (s² + 10s + 100)</span>
               </button>
-              <button onClick={() => updateURL([1], [1, 1], 'bode')} style={{ padding: '1rem', background: 'rgba(255,255,255,0.08)', border: 'none', borderRadius: '12px', color: '#fff', cursor: 'pointer', textAlign: 'left', fontSize: '1rem', transition: 'background 0.2s' }}>
-                <strong>Low-Pass RC Filter</strong> <span style={{ color: '#94a3b8', fontSize: '0.9rem', marginLeft: '0.5rem' }}>H(s) = 1 / (s + 1)</span>
+              <button onClick={() => updateURL([1], [1, 1], 'bode')} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.2rem 1.5rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', color: '#fff', cursor: 'pointer', textAlign: 'left', fontSize: '1.05rem', transition: 'all 0.2s', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                <strong style={{ fontWeight: 600 }}>1st Order Low-Pass Filter</strong> 
+                <span style={{ color: '#94a3b8', fontSize: '0.9rem', fontFamily: 'monospace' }}>H(s) = 1 / (s + 1)</span>
               </button>
-              <button onClick={() => updateURL([1], [1, 0.2, 1], 'step')} style={{ padding: '1rem', background: 'rgba(255,255,255,0.08)', border: 'none', borderRadius: '12px', color: '#fff', cursor: 'pointer', textAlign: 'left', fontSize: '1rem', transition: 'background 0.2s' }}>
-                <strong>Resonant System</strong> <span style={{ color: '#94a3b8', fontSize: '0.9rem', marginLeft: '0.5rem' }}>H(s) = 1 / (s² + 0.2s + 1)</span>
+              <button onClick={() => updateURL([1], [1, 0.2, 1], 'step')} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.2rem 1.5rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', color: '#fff', cursor: 'pointer', textAlign: 'left', fontSize: '1.05rem', transition: 'all 0.2s', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                <strong style={{ fontWeight: 600 }}>Underdamped Resonator</strong> 
+                <span style={{ color: '#94a3b8', fontSize: '0.9rem', fontFamily: 'monospace' }}>H(s) = 1 / (s² + 0.2s + 1)</span>
               </button>
             </div>
-            <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-              <button onClick={() => setIsEditing(true)} style={{ background: 'none', border: 'none', color: '#60a5fa', fontSize: '1rem', cursor: 'pointer', textDecoration: 'underline' }}>Or write your own equation...</button>
+            
+            <div style={{ textAlign: 'center', marginTop: '2.5rem', paddingTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+              <button onClick={() => setIsEditing(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'linear-gradient(135deg, #3b82f6, #2563eb)', color: '#fff', padding: '1rem 2rem', borderRadius: '16px', border: 'none', fontSize: '1.05rem', fontWeight: 600, cursor: 'pointer', boxShadow: '0 10px 25px rgba(59, 130, 246, 0.3)', transition: 'transform 0.2s' }}>
+                <Pencil size={18} /> Or create your own equation
+              </button>
             </div>
           </div>
         </div>
