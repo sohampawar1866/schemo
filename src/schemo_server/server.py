@@ -16,6 +16,7 @@ matplotlib.use("Agg")  # Non-interactive backend for server use
 import matplotlib.pyplot as plt
 import control as ct
 from mcp.server.fastmcp import FastMCP
+from mcp.server.sse import TransportSecuritySettings
 from mcp.types import ImageContent, TextContent, CallToolResult
 
 from schemo_server.circuit_renderer import CircuitElement, render_circuit_to_image
@@ -32,7 +33,22 @@ import uvicorn
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("schemo")
 
-mcp = FastMCP("Schemo")
+# Allow the production custom domain and Render subdomain through
+# the MCP SDK's DNS rebinding protection (default only allows localhost).
+mcp = FastMCP(
+    "Schemo",
+    transport_security=TransportSecuritySettings(
+        enable_dns_rebinding_protection=True,
+        allowed_hosts=[
+            "api-schemo.shaniai.tech",
+            "api-schemo.shaniai.tech:*",
+            "api-schemo.onrender.com",
+            "api-schemo.onrender.com:*",
+            "localhost:*",
+            "127.0.0.1:*",
+        ],
+    ),
+)
 app = FastAPI(title="Schemo API", description="Engineering Math API for ChatGPT Custom Actions")
 
 DASHBOARD_BASE_URL = "https://schemo.shaniai.tech"
