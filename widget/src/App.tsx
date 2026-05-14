@@ -170,7 +170,8 @@ function App() {
   const [isEditing, setIsEditing] = useState(false);
   const [copied, setCopied] = useState(false);
   const [plotKey, setPlotKey] = useState(0);
-  const [activePage, setActivePage] = useState<PageType>(null);
+  const initialPage = (params.get('page') as PageType) || null;
+  const [activePage, setActivePage] = useState<PageType>(initialPage);
 
   const tfHtml = useMemo(() => renderTFLatex(num, den), [num, den]);
 
