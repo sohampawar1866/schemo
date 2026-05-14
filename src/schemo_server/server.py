@@ -1,0 +1,257 @@
+"""
+Schemo API & MCP Server
+=======================
+Exposes engineering visualization tools (Bode plots, circuits, waveforms)
+to AI assistants via the Model Context Protocol (Claude) and REST (ChatGPT).
+"""
+
+import base64
+import logging
+import io
+import argparse
+from enum import Enum
+
+import matplotlib
+matplotlib.use("Agg")  # Non-interactive backend for server use
+import matplotlib.pyplot as plt
+import control as ct
+from mcp.server.fastmcp import FastMCP
+from mcp.types import ImageContent, TextContent, CallToolResult
+
+from schemo_server.circuit_renderer import CircuitElement, render_circuit_to_image
+
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+import uvicorn
+
+# ---------------------------------------------------------------------------
+# Server setup
+# ---------------------------------------------------------------------------
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("schemo")
+
+mcp = FastMCP("Schemo")
+app = FastAPI(title="Schemo API", description="Engineering Math API for ChatGPT Custom Actions")
+
+DASHBOARD_BASE_URL = "https://schemo.shaniai.tech"
+
+# ---------------------------------------------------------------------------
+# Schemas
+# ---------------------------------------------------------------------------
+
+class PlotType(str, Enum):
+    BODE = "bode"
+    STEP = "step"
+    IMPULSE = "impulse"
+    NYQUIST = "nyquist"
+    ROOT_LOCUS = "root_locus"
+
+class PlotRequest(BaseModel):
+    numerator: list[float]
+    denominator: list[float]
+    plot_type: PlotType = PlotType.BODE
+
+# ---------------------------------------------------------------------------
+# Core Logic Helpers
+# ---------------------------------------------------------------------------
+
+def _render_to_base64() -> str:
+    """Save the current matplotlib figure(s) to a base64-encoded PNG string."""
+    buf = io.BytesIO()
+    plt.savefig(buf, format="png", dpi=150, bbox_inches="tight")
+    plt.close("all")
+    buf.seek(0)
+    return base64.standard_b64encode(buf.read()).decode("utf-8")
+
+def core_render_system_plot(numerator: list[float], denominator: list[float], plot_type: PlotType):
+    if not numerator or not denominator:
+        raise ValueError("Numerator and denominator cannot be empty.")
+
+    if len(denominator) < 2 and plot_type in [PlotType.ROOT_LOCUS, PlotType.BODE]:
+        raise ValueError("Denominator must have at least 2 coefficients for meaningful Bode or Root Locus plots.")
+
+    sys = ct.tf(numerator, denominator)
+
+    if plot_type == PlotType.BODE:
+        ct.bode_plot(sys, display_margins=True)
+        plt.suptitle("Bode Plot with Stability Margins")
+
+    elif plot_type == PlotType.STEP:
+        plt.figure(figsize=(8, 6))
+        t, y = ct.step_response(sys)
+        plt.plot(t, y, linewidth=2, color="blue")
+        plt.title("Step Response")
+        plt.xlabel("Time (seconds)")
+        plt.ylabel("Amplitude")
+        plt.grid(True, linestyle=":", alpha=0.7)
+
+    elif plot_type == PlotType.IMPULSE:
+        plt.figure(figsize=(8, 6))
+        t, y = ct.impulse_response(sys)
+        plt.plot(t, y, linewidth=2, color="red")
+        plt.title("Impulse Response")
+        plt.xlabel("Time (seconds)")
+        plt.ylabel("Amplitude")
+        plt.grid(True, linestyle=":", alpha=0.7)
+
+    elif plot_type == PlotType.NYQUIST:
+        ct.nyquist_plot(sys)
+        plt.title("Nyquist Plot")
+
+    elif plot_type == PlotType.ROOT_LOCUS:
+        ct.root_locus(sys)
+        plt.title("Root Locus")
+
+    else:
+        raise ValueError(f"Unsupported plot type '{plot_type}'")
+
+    plt.tight_layout()
+    b64_png = _render_to_base64()
+
+    num_str = ",".join(map(str, numerator))
+    den_str = ",".join(map(str, denominator))
+    dashboard_url = f"{DASHBOARD_BASE_URL}/?system={plot_type.value}&num={num_str}&den={den_str}"
+
+    return b64_png, dashboard_url
+
+# ---------------------------------------------------------------------------
+# ChatGPT REST API Endpoints
+# ---------------------------------------------------------------------------
+
+@app.post("/api/plot")
+def api_plot(req: PlotRequest):
+    """REST endpoint for ChatGPT Custom Action to generate plots."""
+    try:
+        b64_png, dashboard_url = core_render_system_plot(req.numerator, req.denominator, req.plot_type)
+        return {
+            "success": True,
+            "image_base64": b64_png,
+            "dashboard_url": dashboard_url,
+            "openai_output_template": dashboard_url,
+            "message": f"Successfully generated {req.plot_type.value} plot."
+        }
+    except Exception as e:
+        logger.error("api_plot failed: %s", e)
+        plt.close("all")
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.post("/api/circuit")
+def api_circuit(elements: list[CircuitElement]):
+    """REST endpoint for ChatGPT Custom Action to render circuits."""
+    try:
+        if not elements:
+            raise ValueError("Elements list cannot be empty.")
+        png_bytes = render_circuit_to_image(elements)
+        b64_png = base64.standard_b64encode(png_bytes).decode("utf-8")
+        return {
+            "success": True,
+            "image_base64": b64_png,
+            "message": f"Rendered circuit with {len(elements)} elements."
+        }
+    except Exception as e:
+        logger.error("api_circuit failed: %s", e)
+        raise HTTPException(status_code=400, detail=str(e))
+
+# ---------------------------------------------------------------------------
+# Claude MCP Tools
+# ---------------------------------------------------------------------------
+
+@mcp.tool()
+def render_system_plot(
+    numerator: list[float],
+    denominator: list[float],
+    plot_type: PlotType = PlotType.BODE,
+):
+    """Analyze a Linear Time-Invariant (LTI) system and generate professional plots.
+
+    Accepts numerator and denominator polynomial coefficients for a transfer function H(s).
+    Returns a PNG image of the requested plot type, displayed natively in the LLM chat,
+    along with a link to an interactive dashboard.
+
+    IMPORTANT INSTRUCTION FOR CLAUDE: You MUST explicitly include the interactive 
+    dashboard link in your main conversational text response to the user. If you do not 
+    write the link out in your chat response, the user will not be able to see it.
+
+    Supported plot_types:
+    - "bode": Frequency response (magnitude and phase)
+    - "step": Time-domain step response
+    - "impulse": Time-domain impulse response
+    - "nyquist": Nyquist stability plot
+    - "root_locus": Root locus plot of the system poles
+    """
+    try:
+        b64_png, dashboard_url = core_render_system_plot(numerator, denominator, plot_type)
+        logger.info("render_system_plot (MCP): Generated %s plot.", plot_type.value)
+
+        return CallToolResult(
+            content=[
+                ImageContent(
+                    type="image",
+                    data=b64_png,
+                    mimeType="image/png",
+                ),
+                TextContent(
+                    type="text",
+                    text=f"📊 View interactive, full-screen plot: {dashboard_url}",
+                ),
+            ],
+            meta={
+                "openai/outputTemplate": dashboard_url
+            }
+        )
+    except Exception as e:
+        logger.error("render_system_plot failed: %s", e)
+        plt.close("all")
+        return f"Error plotting system: {str(e)}"
+
+@mcp.tool()
+def render_circuit(elements: list[CircuitElement]):
+    """Render a circuit schematic and return a PNG image.
+
+    The LLM MUST provide components plotted on a 2D coordinate grid.
+    Start and end coordinates dictating the placement of each component.
+    """
+    try:
+        if not elements:
+            return "Error: Elements list cannot be empty."
+
+        png_bytes = render_circuit_to_image(elements)
+        logger.info("render_circuit (MCP): Generated Image with %d elements", len(elements))
+
+        b64_png = base64.standard_b64encode(png_bytes).decode("utf-8")
+
+        return [
+            ImageContent(
+                type="image",
+                data=b64_png,
+                mimeType="image/png",
+            ),
+        ]
+    except Exception as e:
+        logger.error("render_circuit failed: %s", e)
+        return f"Error rendering circuit: {str(e)}"
+
+@app.get("/")
+def health_check():
+    return {"status": "Schemo API is running. MCP SSE available at /mcp/sse."}
+
+# Mount MCP SSE app into FastAPI
+# This allows Claude to connect via SSE at /mcp/sse and /mcp/messages
+app.mount("/mcp", mcp.sse_app())
+
+# ---------------------------------------------------------------------------
+# Entry point
+# ---------------------------------------------------------------------------
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run the Schemo API Server.")
+    parser.add_argument("--stdio", action="store_true", help="Run strictly using standard IO for local Claude desktop")
+    args = parser.parse_args()
+
+    if args.stdio:
+        logger.info("Starting Schemo Server using stdio transport (Local Claude Mode)")
+        mcp.run(transport="stdio")
+    else:
+        logger.info("Starting Schemo Cloud Server (REST + SSE) on 0.0.0.0:8000")
+        uvicorn.run(app, host="0.0.0.0", port=8000)
