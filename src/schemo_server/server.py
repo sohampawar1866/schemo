@@ -206,6 +206,9 @@ def render_system_plot(
     - "root_locus": Root locus plot of the system poles
     """
     try:
+        # Guard: Claude sometimes sends null for plot_type
+        if plot_type is None:
+            plot_type = PlotType.BODE
         b64_png, dashboard_url = core_render_system_plot(numerator, denominator, plot_type)
         logger.info("render_system_plot (MCP): Generated %s plot.", plot_type.value)
 
