@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Plot from 'react-plotly.js';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
-import { Pencil, Share2, RefreshCcw, X, Plus, Check } from 'lucide-react';
+import { Pencil, Share2, RefreshCcw, X, Plus, Check, Activity } from 'lucide-react';
 import { PageModal, type PageType } from './Pages';
 import {
   computeBode,
@@ -152,7 +152,14 @@ function TweakerModal({
 
 function App() {
   const [params, setParams] = useState(() => new URLSearchParams(window.location.search));
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 600);
   
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 600);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const isEmptyURL = !params.has('system') && !params.has('num') && !params.has('den');
 
   const plotType = (params.get('system') as PlotType) || 'step';
@@ -220,7 +227,9 @@ function App() {
     return (
       <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #1e2030 0%, #2a1b38 50%, #15323a 100%)', color: '#e2e8f0', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem', fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
-          <h1 style={{ fontSize: '3.5rem', fontWeight: 800, color: '#f8fafc', marginBottom: '1rem', letterSpacing: '-1px' }}>Schemo</h1>
+          <h1 style={{ fontSize: '3.5rem', fontWeight: 800, marginBottom: '1rem', letterSpacing: '-1px', display: 'flex', alignItems: 'center', gap: '1rem', background: 'linear-gradient(90deg, #93c5fd, #c4b5fd)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            <Activity size={56} color="#93c5fd" style={{ WebkitTextFillColor: 'initial' }} /> Schemo
+          </h1>
           <p style={{ fontSize: '1.2rem', color: '#94a3b8', marginBottom: '3rem', textAlign: 'center', maxWidth: '600px', lineHeight: 1.6 }}>
             The professional visualization engine for control systems. Explore interactive Bode, Nyquist, and Root Locus plots directly in your browser, or generate them instantly via Claude and ChatGPT.
           </p>
@@ -271,7 +280,9 @@ function App() {
       {/* Header & Equation */}
       <header style={{ textAlign: 'center', marginBottom: '1.5rem', width: '100%', maxWidth: '1000px' }}>
         <div className="header-top">
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#94a3b8', margin: 0 }}>Schemo</h1>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'linear-gradient(90deg, #93c5fd, #c4b5fd)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            <Activity size={26} color="#93c5fd" style={{ WebkitTextFillColor: 'initial' }} /> Schemo
+          </h1>
           <button onClick={handleShare} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', padding: '0.5rem 1rem', borderRadius: '20px', color: '#fff', cursor: 'pointer', fontSize: '0.9rem', transition: 'all 0.2s' }}>
             {copied ? <Check size={16} color="#10b981"/> : <Share2 size={16} />}
             {copied ? 'Copied!' : 'Share Link'}
@@ -335,12 +346,12 @@ function App() {
         </div>
 
         {/* Dynamic Plot */}
-        <div key={plotKey}>
-          {activePlot === 'bode' && <BodePlotView data={bode} />}
-          {activePlot === 'step' && <TimeResponseView data={step} title="Step Response" color="#3b82f6" />}
-          {activePlot === 'impulse' && <TimeResponseView data={impulse} title="Impulse Response" color="#ef4444" />}
-          {activePlot === 'nyquist' && <NyquistView data={nyquist} />}
-          {activePlot === 'root_locus' && <RootLocusView data={rlocus} />}
+        <div key={plotKey} style={{ position: 'relative', width: '100%', minHeight: isMobile ? '400px' : '600px' }}>
+          {activePlot === 'bode' && <BodePlotView data={bode} isMobile={isMobile} />}
+          {activePlot === 'step' && <TimeResponseView data={step} title="Step Response" color="#3b82f6" isMobile={isMobile} />}
+          {activePlot === 'impulse' && <TimeResponseView data={impulse} title="Impulse Response" color="#ef4444" isMobile={isMobile} />}
+          {activePlot === 'nyquist' && <NyquistView data={nyquist} isMobile={isMobile} />}
+          {activePlot === 'root_locus' && <RootLocusView data={rlocus} isMobile={isMobile} />}
         </div>
       </main>
 
@@ -362,14 +373,14 @@ function App() {
 
 // ─── PLOT COMPONENTS ──────────────────────────────────────────────
 
-const DARK_LAYOUT: Partial<Plotly.Layout> = {
+const getDarkLayout = (isMobile: boolean): Partial<Plotly.Layout> => ({
   paper_bgcolor: 'transparent',
   plot_bgcolor: 'rgba(0,0,0,0.1)',
-  font: { color: '#cbd5e1', family: "'Inter', sans-serif", size: 13 },
-  margin: { l: 60, r: 30, t: 55, b: 50 },
+  font: { color: '#cbd5e1', family: "'Inter', sans-serif", size: 12 },
+  margin: { l: isMobile ? 40 : 60, r: isMobile ? 10 : 30, t: isMobile ? 40 : 55, b: isMobile ? 40 : 50 },
   xaxis: { gridcolor: 'rgba(255,255,255,0.04)', zerolinecolor: 'rgba(255,255,255,0.15)' },
   yaxis: { gridcolor: 'rgba(255,255,255,0.04)', zerolinecolor: 'rgba(255,255,255,0.15)' },
-};
+});
 
 const PLOT_CONFIG: Partial<Plotly.Config> = {
   displayModeBar: true,
@@ -378,35 +389,38 @@ const PLOT_CONFIG: Partial<Plotly.Config> = {
   responsive: true,
 };
 
-function BodePlotView({ data }: { data: BodeData }) {
+function BodePlotView({ data, isMobile }: { data: BodeData, isMobile: boolean }) {
   const freqHz = data.omega.map((w) => w / (2 * Math.PI));
+  const baseLayout = getDarkLayout(isMobile);
   return (
     <div>
       <Plot
         data={[{ x: freqHz, y: data.magnitude_db, type: 'scatter', mode: 'lines', name: 'Magnitude', line: { color: '#38bdf8', width: 2.5 } }]}
-        layout={{ ...DARK_LAYOUT, title: { text: 'Magnitude', font: { size: 14, color: '#e2e8f0' } }, xaxis: { ...DARK_LAYOUT.xaxis, type: 'log', title: 'Frequency (Hz)' }, yaxis: { ...DARK_LAYOUT.yaxis, title: 'Magnitude (dB)' }, height: 350 } as any}
+        layout={{ ...baseLayout, title: { text: 'Magnitude', font: { size: 14, color: '#e2e8f0' } }, xaxis: { ...baseLayout.xaxis, type: 'log', title: 'Frequency (Hz)' }, yaxis: { ...baseLayout.yaxis, title: 'Magnitude (dB)' }, height: 350 } as any}
         config={PLOT_CONFIG} useResizeHandler style={{ width: '100%' }}
       />
       <Plot
         data={[{ x: freqHz, y: data.phase_deg, type: 'scatter', mode: 'lines', name: 'Phase', line: { color: '#f472b6', width: 2.5 } }]}
-        layout={{ ...DARK_LAYOUT, title: { text: 'Phase', font: { size: 14, color: '#e2e8f0' } }, xaxis: { ...DARK_LAYOUT.xaxis, type: 'log', title: 'Frequency (Hz)' }, yaxis: { ...DARK_LAYOUT.yaxis, title: 'Phase (°)' }, height: 350 } as any}
+        layout={{ ...baseLayout, title: { text: 'Phase', font: { size: 14, color: '#e2e8f0' } }, xaxis: { ...baseLayout.xaxis, type: 'log', title: 'Frequency (Hz)' }, yaxis: { ...baseLayout.yaxis, title: 'Phase (°)' }, height: 350 } as any}
         config={PLOT_CONFIG} useResizeHandler style={{ width: '100%' }}
       />
     </div>
   );
 }
 
-function TimeResponseView({ data, title, color }: { data: TimeResponse; title: string; color: string }) {
+function TimeResponseView({ data, title, color, isMobile }: { data: TimeResponse; title: string; color: string, isMobile: boolean }) {
+  const baseLayout = getDarkLayout(isMobile);
   return (
     <Plot
       data={[{ x: data.time, y: data.amplitude, type: 'scatter', mode: 'lines', name: title, line: { color, width: 2.5 }, fill: 'tozeroy', fillcolor: `${color}15` }]}
-      layout={{ ...DARK_LAYOUT, xaxis: { ...DARK_LAYOUT.xaxis, title: 'Time (seconds)' }, yaxis: { ...DARK_LAYOUT.yaxis, title: 'Amplitude' }, height: 600 } as any}
+      layout={{ ...baseLayout, xaxis: { ...baseLayout.xaxis, title: 'Time (seconds)' }, yaxis: { ...baseLayout.yaxis, title: 'Amplitude' }, height: isMobile ? 400 : 600 } as any}
       config={PLOT_CONFIG} useResizeHandler style={{ width: '100%' }}
     />
   );
 }
 
-function NyquistView({ data }: { data: NyquistData }) {
+function NyquistView({ data, isMobile }: { data: NyquistData, isMobile: boolean }) {
+  const baseLayout = getDarkLayout(isMobile);
   return (
     <Plot
       data={[
@@ -414,13 +428,14 @@ function NyquistView({ data }: { data: NyquistData }) {
         { x: data.real, y: data.imag.map((v) => -v), type: 'scatter', mode: 'lines', name: 'H(−jω)', line: { color: '#a855f7', width: 1.5, dash: 'dash' }, opacity: 0.6 },
         { x: [-1], y: [0], type: 'scatter', mode: 'markers', name: '−1 point', marker: { color: '#ef4444', size: 12, symbol: 'x' } },
       ]}
-      layout={{ ...DARK_LAYOUT, xaxis: { ...DARK_LAYOUT.xaxis, title: 'Real', scaleanchor: 'y' }, yaxis: { ...DARK_LAYOUT.yaxis, title: 'Imaginary' }, height: 650 } as any}
+      layout={{ ...baseLayout, xaxis: { ...baseLayout.xaxis, title: 'Real', scaleanchor: 'y' }, yaxis: { ...baseLayout.yaxis, title: 'Imaginary' }, height: isMobile ? 400 : 650 } as any}
       config={PLOT_CONFIG} useResizeHandler style={{ width: '100%' }}
     />
   );
 }
 
-function RootLocusView({ data }: { data: RootLocusData }) {
+function RootLocusView({ data, isMobile }: { data: RootLocusData, isMobile: boolean }) {
+  const baseLayout = getDarkLayout(isMobile);
   const nRoots = data.roots[0]?.length || 0;
   const traces: any[] = [];
   for (let r = 0; r < nRoots; r++) {
@@ -433,7 +448,7 @@ function RootLocusView({ data }: { data: RootLocusData }) {
   return (
     <Plot
       data={traces}
-      layout={{ ...DARK_LAYOUT, xaxis: { ...DARK_LAYOUT.xaxis, title: 'Real Axis', scaleanchor: 'y' }, yaxis: { ...DARK_LAYOUT.yaxis, title: 'Imaginary Axis' }, height: 650 } as any}
+      layout={{ ...baseLayout, xaxis: { ...baseLayout.xaxis, title: 'Real Axis', scaleanchor: 'y' }, yaxis: { ...baseLayout.yaxis, title: 'Imaginary Axis' }, height: isMobile ? 400 : 650 } as any}
       config={PLOT_CONFIG} useResizeHandler style={{ width: '100%' }}
     />
   );
