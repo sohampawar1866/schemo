@@ -31,3 +31,40 @@ button {
 .js-plotly-plot .plotly .modebar-btn:hover path {
   fill: #e2e8f0 !important;
 }
+
+/* Equation Hover Effects */
+.equation-hover:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3) !important;
+}
+
+.equation-hover:hover .edit-icon {
+  background: rgba(167, 139, 250, 0.25) !important;
+  opacity: 1 !important;
+  transform: scale(1.1);
+}
+
+.edit-icon {
+  transition: all 0.2s ease;
+}
+
+/* Scrollbar styling for code/modal blocks */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.2);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.3);
+}
