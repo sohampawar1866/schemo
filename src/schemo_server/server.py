@@ -186,9 +186,15 @@ def render_system_plot(
     Returns a PNG image of the requested plot type, displayed natively in the LLM chat,
     along with a link to an interactive dashboard.
 
-    IMPORTANT INSTRUCTION FOR CLAUDE: You MUST explicitly include the interactive 
-    dashboard link in your main conversational text response to the user. If you do not 
-    write the link out in your chat response, the user will not be able to see it.
+    CRITICAL FORMATTING INSTRUCTIONS FOR CLAUDE:
+    After showing the plot image, you MUST include the interactive dashboard link 
+    as a PROMINENT, clearly clickable markdown link in your response. Format it 
+    EXACTLY like this (on its own separate line, with blank lines above and below):
+
+    **👉 [Open Interactive Dashboard — zoom, pan & explore this plot](URL_HERE)**
+
+    Do NOT hide it as inline text like "Full interactive plot" — students will miss it.
+    The link must stand out visually as a bold call-to-action on its own line.
 
     Supported plot_types:
     - "bode": Frequency response (magnitude and phase)
@@ -213,7 +219,10 @@ def render_system_plot(
                 ),
                 TextContent(
                     type="text",
-                    text=f"📊 View interactive, full-screen plot: {dashboard_url}",
+                    text=(
+                        f"👉 **[Open Interactive Dashboard — zoom, pan & explore this plot]({dashboard_url})**\n\n"
+                        f"Direct link: {dashboard_url}"
+                    ),
                 ),
             ],
             meta={
