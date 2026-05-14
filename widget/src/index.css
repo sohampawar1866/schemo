@@ -18,18 +18,62 @@ button {
   font-family: inherit;
 }
 
-/* Plotly overrides for dark mode */
+/* Plotly overrides for dark mode & better UI */
 .js-plotly-plot .plotly .modebar {
-  background: rgba(0, 0, 0, 0.3) !important;
-  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.4) !important;
+  border-radius: 12px !important;
+  padding: 6px !important;
+  right: 15px !important;
+  top: 15px !important;
+  display: flex !important;
+  gap: 8px !important;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.js-plotly-plot .plotly .modebar-group {
+  display: flex !important;
+  gap: 6px !important;
+  background: transparent !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.js-plotly-plot .plotly .modebar-btn {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-radius: 8px !important;
+  padding: 6px !important;
+  transition: all 0.2s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.js-plotly-plot .plotly .modebar-btn:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  transform: translateY(-1px);
 }
 
 .js-plotly-plot .plotly .modebar-btn path {
-  fill: #94a3b8 !important;
+  fill: #cbd5e1 !important;
 }
 
 .js-plotly-plot .plotly .modebar-btn:hover path {
-  fill: #e2e8f0 !important;
+  fill: #ffffff !important;
+}
+
+/* Emphasize the download button */
+.js-plotly-plot .plotly .modebar-btn[data-title="Download plot as a png"] {
+  background: rgba(59, 130, 246, 0.2) !important;
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+}
+
+.js-plotly-plot .plotly .modebar-btn[data-title="Download plot as a png"]:hover {
+  background: rgba(59, 130, 246, 0.4) !important;
+}
+
+.js-plotly-plot .plotly .modebar-btn[data-title="Download plot as a png"] path {
+  fill: #60a5fa !important;
 }
 
 /* Equation Hover Effects */

@@ -4,33 +4,33 @@
   <img src="schemo-logo.png" alt="Schemo Logo" width="180" />
 </p>
 
-**Schemo** is an AI-powered engineering visualization platform that gives Claude and ChatGPT the ability to generate professional control systems plots and electrical circuit schematics — directly inside the chat.
+Hey there! Welcome to **Schemo**. I built this AI-powered engineering visualization platform because I was tired of firing up MATLAB or writing Python scripts just to see a simple Bode plot. 
 
-Students don't need to install Python, MATLAB, or any local tools. Everything runs in the cloud.
+With Schemo, you can generate professional control systems plots and electrical circuit schematics directly inside Claude and ChatGPT. No installations, no local tools - just ask the AI and you get your plot.
 
 ## Features
 
 ### 1. System Analysis (`schemo:plot`)
 Built on the `python-control` library. Pass transfer function coefficients H(s) = num(s)/den(s) and get:
-- **Bode Plots** - Magnitude and phase frequency response
-- **Step Response** - Time-domain step input analysis
-- **Impulse Response** - Time-domain impulse input analysis
-- **Nyquist Plots** - Stability analysis in the complex plane
-- **Root Locus** - Pole migration as gain varies
+- **Bode Plots**: Magnitude and phase frequency response
+- **Step Response**: Time-domain step input analysis
+- **Impulse Response**: Time-domain impulse input analysis
+- **Nyquist Plots**: Stability analysis in the complex plane
+- **Root Locus**: Pole migration as gain varies
 
 ### 2. Circuit Schematics (`schemo:circuit`)
 Give component types and 2D coordinates, and Schemo renders publication-quality circuit diagrams using `schemdraw`. Supports resistors, capacitors, inductors, diodes, voltage/current sources, ground, and wire connections.
 
 ### 3. Interactive Dashboard
-Every plot comes with a deep link to an interactive Plotly dashboard (hosted on Cloudflare Pages) where students can zoom, pan, and inspect data points. Transfer functions render with proper LaTeX math via KaTeX.
+Every plot comes with a deep link to an interactive Plotly dashboard (hosted on Cloudflare Pages) where you can zoom, pan, and inspect data points. Transfer functions render with proper LaTeX math via KaTeX. Oh, and I just added a visual equation tweaker so you can edit transfer functions on the fly!
 
 ## Architecture
 
-Schemo is split into two cloud-hosted components with zero local dependencies for students:
+I designed Schemo to be split into two cloud-hosted components so it has zero local dependencies for users:
 
 ```
 ┌─────────────────────┐       ┌──────────────────────────────────┐
-│   Claude Desktop    │──SSE──│  Python Backend (Render)         │
+│   Claude Desktop    │--SSE--│  Python Backend (Render)         │
 │   or ChatGPT        │       │  api-schemo.shaniai.tech         │
 └─────────────────────┘       │                                  │
                               │  FastAPI + FastMCP               │
@@ -53,15 +53,15 @@ Schemo is split into two cloud-hosted components with zero local dependencies fo
 
 ### How It Works
 
-1. **Student asks:** "Plot the step response for H(s) = 100/(s² + 10s + 100)"
+1. **You ask:** "Plot the step response for H(s) = 100/(s² + 10s + 100)"
 2. **AI calls Schemo:** Sends numerator `[100]` and denominator `[1, 10, 100]` to the backend
 3. **Backend computes:** Generates a matplotlib PNG + a dashboard URL with encoded parameters
 4. **AI displays:** Shows the static PNG inline in chat + a bold link to the interactive dashboard
-5. **Student explores:** Clicks the link → opens the React dashboard with interactive Plotly charts, KaTeX-rendered equations, and tab switching between all 5 plot types
+5. **You explore:** Click the link -> opens the React dashboard with interactive Plotly charts, KaTeX-rendered equations, and tab switching between all 5 plot types.
 
 ## Installation
 
-### For Students (Claude Desktop)
+### For Claude Desktop
 
 Add this to your `claude_desktop_config.json`:
 
@@ -81,15 +81,17 @@ Add this to your `claude_desktop_config.json`:
 }
 ```
 
-> **Recommended:** Add this to Claude Desktop → Customize → "How would you like Claude to respond?":
+> **Pro Tip:** Add this to Claude Desktop -> Customize -> "How would you like Claude to respond?":
 >
-> *"For any request involving transfer functions, Bode plots, step response, impulse response, Nyquist plots, root locus, or control systems visualization — ALWAYS use the Schemo integration. Never create plots manually with code artifacts."*
+> *"For any request involving transfer functions, Bode plots, step response, impulse response, Nyquist plots, root locus, or control systems visualization - ALWAYS use the Schemo integration. Never create plots manually with code artifacts."*
 
-### For Students (ChatGPT)
+### For ChatGPT
 
-Once published as a ChatGPT App, students can search for "Schemo" in the ChatGPT store and use it instantly — no configuration needed.
+Once I publish it as a ChatGPT App, you can just search for "Schemo" in the ChatGPT store and use it instantly. No setup needed!
 
 ### For Developers (Local Setup)
+
+Want to run it locally or contribute? Here's how:
 
 ```bash
 # Clone and set up
@@ -136,6 +138,7 @@ Schemo/
 ├── widget/
 │   ├── src/
 │   │   ├── App.tsx          # React dashboard with KaTeX + Plotly
+│   │   ├── Pages.tsx        # Legal, Support, and Collaborate pages
 │   │   └── lib/control.ts   # Client-side control systems math
 │   ├── public/              # Favicons and icons
 │   └── index.html           # SEO-optimized entry with OG tags
@@ -147,4 +150,4 @@ Schemo/
 
 ## License
 
-MIT
+MIT - Go crazy and build cool stuff!

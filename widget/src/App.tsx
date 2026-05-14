@@ -379,7 +379,7 @@ const DARK_LAYOUT: Partial<Plotly.Layout> = {
 
 const PLOT_CONFIG: Partial<Plotly.Config> = {
   displayModeBar: true,
-  modeBarButtonsToRemove: ['lasso2d', 'select2d', 'sendDataToCloud'],
+  modeBarButtonsToRemove: ['lasso2d', 'select2d', 'sendDataToCloud', 'zoom2d', 'pan2d'],
   displaylogo: false,
   responsive: true,
 };
