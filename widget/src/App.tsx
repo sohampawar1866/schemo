@@ -90,7 +90,8 @@ function TweakerModal({
       <div style={{
         background: '#1e293b', borderRadius: '24px', width: '100%', maxWidth: '500px',
         padding: '2.5rem 2rem', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)',
-        border: '1px solid rgba(255,255,255,0.1)'
+        border: '1px solid rgba(255,255,255,0.1)',
+        maxHeight: '90vh', overflowY: 'auto'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
           <h2 style={{ margin: 0, fontSize: '1.3rem', color: '#e2e8f0', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
