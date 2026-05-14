@@ -139,6 +139,9 @@ function tfToStateSpace(num: number[], den: number[]) {
     if (i < n - 1) {
       A[i][i + 1] = 1;
     }
+  }
+  // Fill last row (must be done after all rows are created)
+  for (let i = 0; i < n; i++) {
     A[n - 1][i] = -denNorm[n - i];
   }
 
