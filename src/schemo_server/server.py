@@ -191,9 +191,9 @@ def render_system_plot(
     as a PROMINENT, clearly clickable markdown link in your response. Format it 
     EXACTLY like this (on its own separate line, with blank lines above and below):
 
-    **👉 [Open Interactive Dashboard — zoom, pan & explore this plot](URL_HERE)**
+    **👉 [Open Interactive Dashboard - zoom, pan & explore this plot](URL_HERE)**
 
-    Do NOT hide it as inline text like "Full interactive plot" — students will miss it.
+    Do NOT hide it as inline text like "Full interactive plot" - students will miss it.
     The link must stand out visually as a bold call-to-action on its own line.
 
     Supported plot_types:
@@ -220,7 +220,7 @@ def render_system_plot(
                 TextContent(
                     type="text",
                     text=(
-                        f"👉 **[Open Interactive Dashboard — zoom, pan & explore this plot]({dashboard_url})**\n\n"
+                        f"👉 **[Open Interactive Dashboard - zoom, pan & explore this plot]({dashboard_url})**\n\n"
                         f"Direct link: {dashboard_url}"
                     ),
                 ),

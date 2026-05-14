@@ -59,7 +59,7 @@ function App() {
   const rlocus = useMemo(() => computeRootLocus(num, den), [num.toString(), den.toString()]);
 
   useEffect(() => {
-    document.title = `Schemo — ${PLOT_LABELS[activePlot]}`;
+    document.title = `Schemo: ${PLOT_LABELS[activePlot]}`;
   }, [activePlot]);
 
   return (
