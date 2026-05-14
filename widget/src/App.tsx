@@ -249,38 +249,36 @@ function App() {
   }
 
   return (
-    <div style={{
+    <div className="app-wrapper" style={{
       minHeight: '100vh',
       background: 'linear-gradient(135deg, #1e2030 0%, #2a1b38 50%, #15323a 100%)',
       color: '#e2e8f0',
       fontFamily: "'Inter', 'Segoe UI', sans-serif",
-      padding: '1.5rem',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center'
     }}>
       {/* Header & Equation */}
-      <header style={{ textAlign: 'center', marginBottom: '2rem', width: '100%', maxWidth: '1000px', position: 'relative' }}>
-        <div style={{ position: 'absolute', right: 0, top: 0, display: 'flex', gap: '0.5rem' }}>
-           <button onClick={handleShare} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', padding: '0.5rem 1rem', borderRadius: '20px', color: '#fff', cursor: 'pointer', fontSize: '0.9rem', transition: 'all 0.2s' }}>
-             {copied ? <Check size={16} color="#10b981"/> : <Share2 size={16} />}
-             {copied ? 'Copied!' : 'Share Link'}
-           </button>
+      <header style={{ textAlign: 'center', marginBottom: '1.5rem', width: '100%', maxWidth: '1000px' }}>
+        <div className="header-top">
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#94a3b8', margin: 0 }}>Schemo</h1>
+          <button onClick={handleShare} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', padding: '0.5rem 1rem', borderRadius: '20px', color: '#fff', cursor: 'pointer', fontSize: '0.9rem', transition: 'all 0.2s' }}>
+            {copied ? <Check size={16} color="#10b981"/> : <Share2 size={16} />}
+            {copied ? 'Copied!' : 'Share Link'}
+          </button>
         </div>
-
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#94a3b8', margin: '0 0 1rem 0' }}>Schemo</h1>
         
         {/* Clickable Equation */}
         <div 
           onClick={() => setIsEditing(true)}
+          className="equation-hover equation-box"
           style={{ 
             display: 'inline-flex', alignItems: 'center', gap: '1rem',
-            background: 'rgba(255,255,255,0.03)', padding: '1.5rem 2.5rem', 
+            background: 'rgba(255,255,255,0.03)',
             borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)',
             cursor: 'pointer', transition: 'all 0.2s ease',
             boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
           }}
-          className="equation-hover"
         >
           <div style={{ color: '#e2e8f0', fontSize: '1.3rem' }} dangerouslySetInnerHTML={{ __html: tfHtml }} />
           <div className="edit-icon" style={{ color: '#a78bfa', opacity: 0.7, padding: '0.5rem', background: 'rgba(167, 139, 250, 0.1)', borderRadius: '50%' }}>
@@ -290,20 +288,19 @@ function App() {
       </header>
 
       {/* Main Content Area */}
-      <main style={{
+      <main className="main-card" style={{
         width: '100%',
         maxWidth: '1200px',
         background: 'rgba(255,255,255,0.03)',
         borderRadius: '24px',
         border: '1px solid rgba(255,255,255,0.08)',
-        padding: '1.5rem',
         backdropFilter: 'blur(12px)',
         boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
       }}>
         {/* Top bar inside the card: Tabs + Reset */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
           
-          <nav style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <nav className="plot-tabs">
             {(Object.keys(PLOT_LABELS) as PlotType[]).map((pt) => (
               <button
                 key={pt}
@@ -359,7 +356,7 @@ const DARK_LAYOUT: Partial<Plotly.Layout> = {
   paper_bgcolor: 'transparent',
   plot_bgcolor: 'rgba(0,0,0,0.1)',
   font: { color: '#cbd5e1', family: "'Inter', sans-serif", size: 13 },
-  margin: { l: 60, r: 30, t: 30, b: 50 },
+  margin: { l: 60, r: 30, t: 55, b: 50 },
   xaxis: { gridcolor: 'rgba(255,255,255,0.04)', zerolinecolor: 'rgba(255,255,255,0.15)' },
   yaxis: { gridcolor: 'rgba(255,255,255,0.04)', zerolinecolor: 'rgba(255,255,255,0.15)' },
 };

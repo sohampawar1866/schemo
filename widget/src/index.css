@@ -112,3 +112,68 @@ button {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255,255,255,0.3);
 }
+
+/* --- Responsive Utility Classes --- */
+.app-wrapper {
+  padding: 1.5rem;
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.equation-box {
+  padding: 1.5rem 2.5rem;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.main-card {
+  padding: 1.5rem;
+}
+
+.plot-tabs {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 600px) {
+  .app-wrapper {
+    padding: 0.8rem;
+  }
+  
+  .header-top {
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .equation-box {
+    padding: 1rem;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .main-card {
+    padding: 1rem;
+  }
+
+  .plot-tabs button {
+    padding: 0.5rem 0.8rem !important;
+    font-size: 0.85rem !important;
+    flex: 1 1 calc(50% - 0.5rem);
+  }
+
+  .js-plotly-plot .plotly .modebar {
+    right: 5px !important;
+    top: 5px !important;
+    flex-wrap: wrap;
+    max-width: 150px;
+    justify-content: flex-end;
+  }
+}
+
