@@ -27,7 +27,9 @@ const PLOT_LABELS: Record<PlotType, string> = {
 };
 
 function parseCoeffs(str: string): number[] {
-  return str.split(',').map(Number).filter((n) => !isNaN(n));
+  const parts = str.replace(/,/g, ' ').split(/\s+/).filter(Boolean);
+  const nums = parts.map(Number).filter((n) => !isNaN(n));
+  return nums.length > 0 ? nums : [0];
 }
 
 function polyToLatex(coeffs: number[]): string {
@@ -70,54 +72,13 @@ function TweakerModal({
   onApply: (n: number[], d: number[]) => void;
   onClose: () => void;
 }) {
-  const [num, setNum] = useState<number[]>([...initialNum]);
-  const [den, setDen] = useState<number[]>([...initialDen]);
+  const [numStr, setNumStr] = useState<string>(initialNum.join(', '));
+  const [denStr, setDenStr] = useState<string>(initialDen.join(', '));
 
-  const tfHtml = useMemo(() => renderTFLatex(num, den), [num, den]);
+  const parsedNum = useMemo(() => parseCoeffs(numStr), [numStr]);
+  const parsedDen = useMemo(() => parseCoeffs(denStr), [denStr]);
 
-  const updateCoeff = (arr: number[], setArr: any, index: number, val: string) => {
-    const newArr = [...arr];
-    newArr[index] = Number(val) || 0;
-    setArr(newArr);
-  };
-
-  const addTerm = (arr: number[], setArr: any) => setArr([0, ...arr]);
-  const removeTerm = (arr: number[], setArr: any, idx: number) => {
-    if (arr.length > 1) setArr(arr.filter((_, i) => i !== idx));
-  };
-
-  const renderPolyEditor = (coeffs: number[], setCoeffs: any, label: string) => (
-    <div style={{ marginBottom: '1.5rem' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', color: '#94a3b8', fontSize: '0.85rem', fontWeight: 600 }}>
-        <span>{label}</span>
-        <button onClick={() => addTerm(coeffs, setCoeffs)} style={{ background: 'none', border: 'none', color: '#60a5fa', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.2rem', fontSize: '0.8rem' }}>
-          <Plus size={14} /> Add term
-        </button>
-      </div>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center' }}>
-        {coeffs.map((c, i) => {
-          const power = coeffs.length - 1 - i;
-          return (
-            <div key={`${label}-${i}-${power}`} style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', padding: '0.3rem', border: '1px solid rgba(255,255,255,0.1)' }}>
-              <input
-                type="number"
-                value={c}
-                onChange={(e) => updateCoeff(coeffs, setCoeffs, i, e.target.value)}
-                style={{ width: '60px', background: 'transparent', border: 'none', color: '#fff', fontSize: '1rem', textAlign: 'center', outline: 'none' }}
-              />
-              <span style={{ color: '#94a3b8', marginRight: '0.5rem' }} dangerouslySetInnerHTML={{ __html: katex.renderToString(power === 0 ? '' : power === 1 ? 's' : `s^${power}`) }} />
-              {coeffs.length > 1 && (
-                <button onClick={() => removeTerm(coeffs, setCoeffs, i)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '0 0.2rem' }}>
-                  <X size={14} />
-                </button>
-              )}
-              {i < coeffs.length - 1 && <span style={{ marginLeft: '0.5rem', color: '#94a3b8' }}>+</span>}
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
+  const tfHtml = useMemo(() => renderTFLatex(parsedNum, parsedDen), [parsedNum, parsedDen]);
 
   return (
     <div style={{
@@ -127,33 +88,51 @@ function TweakerModal({
       padding: '1rem'
     }}>
       <div style={{
-        background: '#1e293b', borderRadius: '24px', width: '100%', maxWidth: '600px',
-        padding: '2rem', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)',
+        background: '#1e293b', borderRadius: '24px', width: '100%', maxWidth: '500px',
+        padding: '2.5rem 2rem', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)',
         border: '1px solid rgba(255,255,255,0.1)'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-          <h2 style={{ margin: 0, fontSize: '1.3rem', color: '#e2e8f0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <h2 style={{ margin: 0, fontSize: '1.3rem', color: '#e2e8f0', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <Pencil size={20} color="#a78bfa" /> Tweak Equation
           </h2>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}><X size={24} /></button>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: '0.2rem' }}><X size={24} /></button>
         </div>
 
-        <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '12px', marginBottom: '2rem', overflowX: 'auto' }}>
-          <div style={{ color: '#c8d6e5', fontSize: '1.2rem', textAlign: 'center' }} dangerouslySetInnerHTML={{ __html: tfHtml }} />
+        <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1.5rem 1rem', borderRadius: '12px', marginBottom: '2rem', overflowX: 'auto', minHeight: '100px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.05)' }}>
+          <div style={{ color: '#c8d6e5', fontSize: '1.3rem', textAlign: 'center' }} dangerouslySetInnerHTML={{ __html: tfHtml }} />
         </div>
 
-        {renderPolyEditor(num, setNum, 'NUMERATOR')}
-        {renderPolyEditor(den, setDen, 'DENOMINATOR')}
-
-        <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
-          <button onClick={() => onApply(num, den)} style={{
-            flex: 1, padding: '0.8rem', borderRadius: '12px', border: 'none',
-            background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff',
-            fontWeight: 600, fontSize: '1rem', cursor: 'pointer', boxShadow: '0 4px 14px rgba(16, 185, 129, 0.3)'
-          }}>
-            Update Plot
-          </button>
+        <div style={{ marginBottom: '1.5rem' }}>
+          <label style={{ display: 'block', marginBottom: '0.5rem', color: '#94a3b8', fontSize: '0.85rem', fontWeight: 600 }}>NUMERATOR COEFFICIENTS</label>
+          <input
+            type="text"
+            value={numStr}
+            onChange={(e) => setNumStr(e.target.value)}
+            placeholder="e.g. 100"
+            style={{ width: '100%', padding: '0.8rem 1rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff', fontSize: '1.05rem', outline: 'none', fontFamily: 'monospace' }}
+          />
         </div>
+
+        <div style={{ marginBottom: '2rem' }}>
+          <label style={{ display: 'block', marginBottom: '0.5rem', color: '#94a3b8', fontSize: '0.85rem', fontWeight: 600 }}>DENOMINATOR COEFFICIENTS</label>
+          <input
+            type="text"
+            value={denStr}
+            onChange={(e) => setDenStr(e.target.value)}
+            placeholder="e.g. 1, 10, 100"
+            style={{ width: '100%', padding: '0.8rem 1rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff', fontSize: '1.05rem', outline: 'none', fontFamily: 'monospace' }}
+          />
+          <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '0.6rem' }}>Enter coefficients separated by commas or spaces.</div>
+        </div>
+
+        <button onClick={() => onApply(parsedNum, parsedDen)} style={{
+          width: '100%', padding: '1rem', borderRadius: '12px', border: 'none',
+          background: 'linear-gradient(135deg, #3b82f6, #2563eb)', color: '#fff',
+          fontWeight: 600, fontSize: '1.1rem', cursor: 'pointer', boxShadow: '0 10px 25px rgba(59, 130, 246, 0.3)', transition: 'transform 0.2s'
+        }}>
+          Update Plot
+        </button>
       </div>
     </div>
   );
