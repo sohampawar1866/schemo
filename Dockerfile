@@ -20,6 +20,5 @@ COPY src/ /app/src/
 # Expose the SSE port (fastmcp default for SSE is usually 8000)
 EXPOSE 8000
 
-# Run the server with SSE transport
-# Note: we run the module
-CMD ["python", "-m", "schemo_server.server", "--sse"]
+# Run the server via standard python command (defaults to Uvicorn cloud mode)
+CMD ["python", "src/schemo_server/server.py"]
