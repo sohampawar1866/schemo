@@ -19,6 +19,7 @@ from mcp.server.fastmcp import FastMCP
 from mcp.types import ImageContent, TextContent, CallToolResult
 
 from schemo_server.circuit_renderer import CircuitElement, render_circuit_to_image
+from schemo_server.chatgpt_widget import register_chatgpt_resources
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
@@ -184,6 +185,9 @@ def render_system_plot(
         b64_png, dashboard_url = core_render_system_plot(numerator, denominator, plot_type)
         logger.info("render_system_plot (MCP): Generated %s plot.", plot_type.value)
 
+        num_str = ",".join(map(str, numerator))
+        den_str = ",".join(map(str, denominator))
+
         return CallToolResult(
             content=[
                 ImageContent(
@@ -197,7 +201,7 @@ def render_system_plot(
                 ),
             ],
             meta={
-                "openai/outputTemplate": dashboard_url
+                "openai/outputTemplate": f"ui://dashboard/{plot_type.value}/{num_str}/{den_str}"
             }
         )
     except Exception as e:
@@ -235,6 +239,9 @@ def render_circuit(elements: list[CircuitElement]):
 @app.get("/")
 def health_check():
     return {"status": "Schemo API is running. MCP SSE available at /mcp/sse."}
+
+# Register ChatGPT MCP Resources before mounting
+register_chatgpt_resources(mcp)
 
 # Mount MCP SSE app into FastAPI
 # This allows Claude to connect via SSE at /mcp/sse and /mcp/messages
