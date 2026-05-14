@@ -113,35 +113,44 @@ button {
   background: rgba(255,255,255,0.3);
 }
 
-/* --- Responsive Utility Classes --- */
-.app-wrapper {
-  padding: 1.5rem;
-}
+/* Typography & Layout Scaling */
+.text-hero { font-size: 3.5rem; font-weight: 800; margin-bottom: 1rem; display: flex; align-items: center; gap: 1rem; }
+.text-subtitle { font-size: 1.2rem; margin-bottom: 3rem; }
+.text-heading { font-size: 1.5rem; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 0.5rem; }
+.text-modal-heading { font-size: 1.3rem; margin: 0; display: flex; align-items: center; gap: 0.6rem; }
+.text-page-heading { font-size: 1.8rem; margin-bottom: 1.5rem; color: #f8fafc; }
+.equation-text { font-size: 1.5rem; }
 
-.header-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
+.modal-content { padding: 3rem; }
+.tweaker-modal { padding: 2.5rem 2rem; }
+.footer-container { margin: 4rem auto 0; padding: 2rem 1rem; gap: 2rem; }
+.box-pad { padding: 2rem; }
+.btn-pad { padding: 1.2rem 1.5rem; }
+.btn-pad-lg { padding: 1rem 2rem; }
 
-.equation-box {
-  padding: 1.5rem 2.5rem;
-  max-width: 100%;
-  overflow-x: auto;
-}
-
-.main-card {
-  padding: 1.5rem;
-}
-
-.plot-tabs {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
+/* --- Base Layout Classes --- */
+.app-wrapper { padding: 1.5rem; }
+.header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+.equation-box { padding: 1.5rem 2.5rem; max-width: 100%; overflow-x: auto; }
+.main-card { padding: 1.5rem; }
+.plot-tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 
 @media (max-width: 600px) {
+  .text-hero { font-size: 2.2rem; margin-bottom: 0.5rem; gap: 0.5rem; }
+  .text-subtitle { font-size: 0.95rem; line-height: 1.4; margin-bottom: 2rem !important; }
+  .text-heading { font-size: 1.2rem; }
+  .text-modal-heading { font-size: 1.15rem; margin-bottom: 0.8rem; }
+  .text-page-heading { font-size: 1.4rem; margin-bottom: 1rem; }
+  .equation-text { font-size: 1.1rem !important; }
+
+  .modal-content { padding: 1.5rem 1rem !important; }
+  .tweaker-modal { padding: 1.5rem 1rem !important; }
+  .footer-container { margin: 2rem auto 0 !important; padding: 1rem 0.5rem !important; gap: 1rem !important; flex-direction: column; align-items: center; }
+  .box-pad { padding: 1rem !important; }
+  
+  .btn-pad { padding: 1rem 1.2rem !important; flex-direction: column; align-items: flex-start !important; gap: 0.5rem; }
+  .btn-pad-lg { padding: 0.8rem 1.5rem !important; }
+
   .app-wrapper {
     padding: 0.2rem;
   }
@@ -153,7 +162,7 @@ button {
   }
   
   .equation-box {
-    padding: 0.8rem;
+    padding: 0.5rem !important;
     flex-direction: column;
     gap: 0.5rem;
   }

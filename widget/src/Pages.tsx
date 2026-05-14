@@ -48,6 +48,7 @@ export function PageModal({ page, onClose }: { page: PageType; onClose: () => vo
       }}
     >
       <div
+        className="modal-content"
         style={{
           background: '#1e293b',
           borderRadius: '24px',
@@ -55,7 +56,6 @@ export function PageModal({ page, onClose }: { page: PageType; onClose: () => vo
           maxWidth: '650px',
           maxHeight: '90vh',
           overflowY: 'auto',
-          padding: '2.5rem',
           boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)',
           border: '1px solid rgba(255,255,255,0.1)',
           position: 'relative',
@@ -94,7 +94,7 @@ export function PageModal({ page, onClose }: { page: PageType; onClose: () => vo
 function PrivacyPolicy() {
   return (
     <>
-      <h2 style={{ fontSize: '1.8rem', marginBottom: '1.5rem', color: '#f8fafc' }}>Privacy & Policy</h2>
+      <h2 className="text-page-heading">Privacy & Policy</h2>
       <p style={{ marginBottom: '1rem', color: '#cbd5e1' }}>
         At <strong>Schemo</strong>, your privacy and data security are our top priority. We believe in transparency and building tools that respect our users.
       </p>
@@ -124,7 +124,7 @@ function PrivacyPolicy() {
 function AboutUs() {
   return (
     <>
-      <h2 style={{ fontSize: '1.8rem', marginBottom: '1.5rem', color: '#f8fafc' }}>About Schemo</h2>
+      <h2 className="text-page-heading">About Schemo</h2>
       <p style={{ marginBottom: '1rem', color: '#cbd5e1', fontSize: '1.1rem' }}>
         Schemo was built to solve a simple problem: making engineering visualizations frictionless.
       </p>
@@ -134,7 +134,7 @@ function AboutUs() {
       <p style={{ marginBottom: '2rem', color: '#cbd5e1' }}>
         Whether you're an electrical engineering student cramming for a controls exam, or a professional tweaking a PID controller, Schemo is designed to give you instant, interactive, and beautiful insights.
       </p>
-      <div style={{ textAlign: 'center', marginTop: '2.5rem', padding: '2rem', background: 'rgba(255,255,255,0.03)', borderRadius: '16px' }}>
+      <div className="box-pad" style={{ textAlign: 'center', marginTop: '2.5rem', background: 'rgba(255,255,255,0.03)', borderRadius: '16px' }}>
         <h4 style={{ marginBottom: '0.5rem', color: '#e2e8f0' }}>Help Keep Schemo Running</h4>
         <p style={{ marginBottom: '1rem', color: '#94a3b8', fontSize: '0.9rem' }}>
           Server hosting and API maintenance costs add up. If you found this tool helpful for your studies or work, consider supporting the project!
@@ -148,7 +148,7 @@ function AboutUs() {
 function Support() {
   return (
     <>
-      <h2 style={{ fontSize: '1.8rem', marginBottom: '1.5rem', color: '#f8fafc' }}>Support & Help</h2>
+      <h2 className="text-page-heading">Support & Help</h2>
       
       <h3 style={{ fontSize: '1.2rem', margin: '1.5rem 0 0.8rem', color: '#e2e8f0' }}>How to use Schemo</h3>
       <p style={{ marginBottom: '1rem', color: '#cbd5e1' }}>
@@ -160,7 +160,7 @@ function Support() {
         You can manually edit equations by clicking the large equation text at the top of the dashboard. This opens our visual Polynomial Builder.
       </p>
 
-      <div style={{ textAlign: 'center', marginTop: '3rem', padding: '2rem', background: 'rgba(255,255,255,0.03)', borderRadius: '16px' }}>
+      <div className="box-pad" style={{ textAlign: 'center', marginTop: '3rem', background: 'rgba(255,255,255,0.03)', borderRadius: '16px' }}>
         <h4 style={{ marginBottom: '0.5rem', color: '#e2e8f0' }}>Support the Developer</h4>
         <p style={{ marginBottom: '1rem', color: '#94a3b8', fontSize: '0.9rem' }}>
           If you need further assistance or just want to support the continued development of Schemo, I'd deeply appreciate a coffee!
@@ -173,8 +173,8 @@ function Support() {
 
 function Contact() {
   return (
-    <div style={{ textAlign: 'center', padding: '1rem 0' }}>
-      <h2 style={{ fontSize: '1.8rem', marginBottom: '1.5rem', color: '#f8fafc' }}>Contact Me</h2>
+    <div className="box-pad" style={{ textAlign: 'center' }}>
+      <h2 className="text-page-heading">Contact Me</h2>
       <p style={{ marginBottom: '2rem', color: '#cbd5e1', fontSize: '1.1rem' }}>
         Have questions, feedback, or found a bug? I'd love to hear from you.
       </p>
@@ -205,8 +205,8 @@ function Contact() {
 
 function Collaborate() {
   return (
-    <div style={{ textAlign: 'center', padding: '1rem 0' }}>
-      <h2 style={{ fontSize: '1.8rem', marginBottom: '1.5rem', color: '#f8fafc' }}>Let's Collaborate</h2>
+    <div className="box-pad" style={{ textAlign: 'center' }}>
+      <h2 className="text-page-heading">Let's Collaborate</h2>
       <p style={{ marginBottom: '2.5rem', color: '#cbd5e1', fontSize: '1.1rem', maxWidth: '500px', margin: '0 auto 2.5rem' }}>
         I'm always open to open-source contributions, exciting new projects, and networking with fellow engineers and developers. Let's connect!
       </p>
