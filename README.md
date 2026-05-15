@@ -87,7 +87,9 @@ Add the following to `claude_desktop_config.json`:
 
 ### For ChatGPT
 
-Schemo is available as a Custom Action. The API uses a secret, undocumented `openaiFileResponse` payload array. When ChatGPT receives this array in the standard JSON response, its backend intercepts the base64 string, converts it to an internal file, and drops it into the chat as a native, inline file attachment—bypassing ChatGPT's strict markdown external domain blockers.
+👉 **[Open Schemo on ChatGPT](https://chatgpt.com/g/g-6a0659332158819195c73d58cfc34ef3-schemo)**
+
+No setup required — just click the link above and start chatting. Schemo uses an `openaiFileResponse` payload to render plots as native inline image attachments directly inside the chat window.
 
 ### For Developers (Local Setup)
 
