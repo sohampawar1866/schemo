@@ -176,8 +176,8 @@ def api_plot(req: PlotRequest):
             "NoteForAssistant": "You MUST output the `image_markdown` string directly to the user so they can see the plot.",
             "openaiFileResponse": [
                 {
-                    "name": "plot.jpg",
-                    "mime_type": "image/jpeg",
+                    "name": "plot.png",
+                    "mime_type": "image/png",
                     "content": b64_png
                 }
             ]
