@@ -139,7 +139,7 @@ def core_render_system_plot(numerator: list[float], denominator: list[float], pl
 # ChatGPT REST API Endpoints
 # ---------------------------------------------------------------------------
 
-@app.get("/api/plot.png")
+@app.get("/api/plot/{plot_type}/{num}/{den}/plot.png")
 def get_api_plot_png(plot_type: PlotType, num: str, den: str):
     """Returns the raw PNG image of a plot."""
     try:
@@ -164,13 +164,16 @@ def api_plot(req: PlotRequest):
         
         num_str = ",".join(map(str, req.numerator))
         den_str = ",".join(map(str, req.denominator))
-        image_url = f"https://api-schemo.shaniai.tech/api/plot.png?plot_type={req.plot_type.value}&num={num_str}&den={den_str}"
+        image_url = f"https://api-schemo.shaniai.tech/api/plot/{req.plot_type.value}/{num_str}/{den_str}/plot.png"
+        image_markdown = f"![Schemo Plot]({image_url})"
 
         return {
             "success": True,
             "image_url": image_url,
+            "image_markdown": image_markdown,
             "dashboard_url": dashboard_url,
-            "message": f"Successfully generated {req.plot_type.value} plot."
+            "message": f"Successfully generated {req.plot_type.value} plot.",
+            "NoteForAssistant": "You MUST output the `image_markdown` string directly to the user so they can see the plot."
         }
     except Exception as e:
         logger.error("api_plot failed: %s", e)
@@ -180,7 +183,7 @@ def api_plot(req: PlotRequest):
 class CircuitRequest(BaseModel):
     elements: list[CircuitElement]
 
-@app.get("/api/circuit.png")
+@app.get("/api/circuit/{data}/circuit.png")
 def get_api_circuit_png(data: str):
     """Returns the raw PNG image of a circuit from base64 JSON payload."""
     try:
@@ -204,18 +207,19 @@ def api_circuit(req: CircuitRequest):
     try:
         if not elements:
             raise ValueError("Elements list cannot be empty.")
-        png_bytes = render_circuit_to_image(elements)
-        b64_png = base64.standard_b64encode(png_bytes).decode("utf-8")
         
         # Build image URL using urlsafe base64 of the elements JSON
         json_str = json.dumps([e.dict() for e in elements])
         data_b64 = base64.urlsafe_b64encode(json_str.encode('utf-8')).decode('utf-8')
-        image_url = f"https://api-schemo.shaniai.tech/api/circuit.png?data={data_b64}"
+        image_url = f"https://api-schemo.shaniai.tech/api/circuit/{data_b64}/circuit.png"
+        image_markdown = f"![Circuit Schematic]({image_url})"
 
         return {
             "success": True,
             "image_url": image_url,
-            "message": f"Rendered circuit with {len(elements)} elements."
+            "image_markdown": image_markdown,
+            "message": f"Rendered circuit with {len(elements)} elements.",
+            "NoteForAssistant": "You MUST output the `image_markdown` string directly to the user so they can see the schematic."
         }
     except Exception as e:
         logger.error("api_circuit failed: %s", e)
