@@ -139,15 +139,15 @@ def core_render_system_plot(numerator: list[float], denominator: list[float], pl
 # ChatGPT REST API Endpoints
 # ---------------------------------------------------------------------------
 
-@app.get("/api/plot/{plot_type}/{num}/{den}/plot.png")
+@app.get("/api/plot/{plot_type}/{num}/{den}/plot.jpg")
 def get_api_plot_png(plot_type: PlotType, num: str, den: str):
-    """Returns the raw PNG image of a plot."""
+    """Returns the raw JPG image of a plot."""
     try:
         numerator = [float(x) for x in num.split(",")]
         denominator = [float(x) for x in den.split(",")]
-        b64_png, _ = core_render_system_plot(numerator, denominator, plot_type)
-        png_bytes = base64.b64decode(b64_png)
-        return Response(content=png_bytes, media_type="image/png")
+        b64_jpg, _ = core_render_system_plot(numerator, denominator, plot_type)
+        jpg_bytes = base64.b64decode(b64_jpg)
+        return Response(content=jpg_bytes, media_type="image/jpeg")
     except Exception as e:
         logger.error("get_api_plot_png failed: %s", e)
         raise HTTPException(status_code=400, detail=str(e))
@@ -164,7 +164,7 @@ def api_plot(req: PlotRequest):
         
         num_str = ",".join(map(str, req.numerator))
         den_str = ",".join(map(str, req.denominator))
-        image_url = f"https://api-schemo.shaniai.tech/api/plot/{req.plot_type.value}/{num_str}/{den_str}/plot.png"
+        image_url = f"https://api-schemo.shaniai.tech/api/plot/{req.plot_type.value}/{num_str}/{den_str}/plot.jpg"
         image_markdown = f"![Schemo Plot]({image_url})"
 
         return {
@@ -173,7 +173,14 @@ def api_plot(req: PlotRequest):
             "image_markdown": image_markdown,
             "dashboard_url": dashboard_url,
             "message": f"Successfully generated {req.plot_type.value} plot.",
-            "NoteForAssistant": "You MUST output the `image_markdown` string directly to the user so they can see the plot."
+            "NoteForAssistant": "You MUST output the `image_markdown` string directly to the user so they can see the plot.",
+            "openaiFileResponse": [
+                {
+                    "name": "plot.jpg",
+                    "mime_type": "image/jpeg",
+                    "content": b64_png
+                }
+            ]
         }
     except Exception as e:
         logger.error("api_plot failed: %s", e)
@@ -183,15 +190,15 @@ def api_plot(req: PlotRequest):
 class CircuitRequest(BaseModel):
     elements: list[CircuitElement]
 
-@app.get("/api/circuit/{data}/circuit.png")
+@app.get("/api/circuit/{data}/circuit.jpg")
 def get_api_circuit_png(data: str):
-    """Returns the raw PNG image of a circuit from base64 JSON payload."""
+    """Returns the raw JPG image of a circuit from base64 JSON payload."""
     try:
         json_str = base64.urlsafe_b64decode(data).decode('utf-8')
         elements_data = json.loads(json_str)
         elements = [CircuitElement(**e) for e in elements_data]
-        png_bytes = render_circuit_to_image(elements)
-        return Response(content=png_bytes, media_type="image/png")
+        jpg_bytes = render_circuit_to_image(elements)
+        return Response(content=jpg_bytes, media_type="image/jpeg")
     except Exception as e:
         logger.error("get_api_circuit_png failed: %s", e)
         raise HTTPException(status_code=400, detail=str(e))
@@ -211,15 +218,25 @@ def api_circuit(req: CircuitRequest):
         # Build image URL using urlsafe base64 of the elements JSON
         json_str = json.dumps([e.dict() for e in elements])
         data_b64 = base64.urlsafe_b64encode(json_str.encode('utf-8')).decode('utf-8')
-        image_url = f"https://api-schemo.shaniai.tech/api/circuit/{data_b64}/circuit.png"
+        image_url = f"https://api-schemo.shaniai.tech/api/circuit/{data_b64}/circuit.jpg"
         image_markdown = f"![Circuit Schematic]({image_url})"
+        
+        jpg_bytes = render_circuit_to_image(elements)
+        b64_jpg = base64.b64encode(jpg_bytes).decode("utf-8")
 
         return {
             "success": True,
             "image_url": image_url,
             "image_markdown": image_markdown,
             "message": f"Rendered circuit with {len(elements)} elements.",
-            "NoteForAssistant": "You MUST output the `image_markdown` string directly to the user so they can see the schematic."
+            "NoteForAssistant": "You MUST output the `image_markdown` string directly to the user so they can see the schematic.",
+            "openaiFileResponse": [
+                {
+                    "name": "circuit.jpg",
+                    "mime_type": "image/jpeg",
+                    "content": b64_jpg
+                }
+            ]
         }
     except Exception as e:
         logger.error("api_circuit failed: %s", e)
