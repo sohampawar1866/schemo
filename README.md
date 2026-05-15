@@ -37,9 +37,9 @@ Schemo is split into two cloud-hosted components with zero local dependencies:
                               │  ├─ /api/circuit(ChatGPT REST)   │
                               │  └─ /favicon.ico                 │
                               └──────────────────────────────────┘
-                                            │
-                                    generates dashboard URL
-                                            │
+                                      │             │
+                    generates dashboard URL    returns native file attachment
+                                      │         via `openaiFileResponse`
                               ┌──────────────────────────────────┐
                               │  React Dashboard (Cloudflare)    │
                               │  schemo.shaniai.tech              │
@@ -54,7 +54,9 @@ Schemo is split into two cloud-hosted components with zero local dependencies:
 1. **User Request**: "Plot the step response for H(s) = 100/(s² + 10s + 100)"
 2. **AI Tool Call**: Sends numerator `[100]` and denominator `[1, 10, 100]` to the backend.
 3. **Backend Computation**: Generates a matplotlib PNG and a dashboard URL with encoded parameters.
-4. **AI Display**: Displays the static PNG inline in chat alongside a link to the interactive dashboard.
+4. **AI Display**: 
+   - **ChatGPT**: Intercepts the undocumented `openaiFileResponse` payload and renders the PNG natively as an inline file attachment, alongside the interactive dashboard link.
+   - **Claude**: Receives the `ImageContent` block (currently stored in the collapsed "Tool Use" accordion due to Claude UI constraints) and outputs the bold dashboard link for interactive viewing.
 5. **Dashboard Interaction**: The React dashboard loads interactive Plotly charts, KaTeX-rendered equations, and allows tab switching between all analysis types.
 
 ## Installation
@@ -85,7 +87,7 @@ Add the following to `claude_desktop_config.json`:
 
 ### For ChatGPT
 
-Schemo will be available as a Custom GPT in the store. Users can search for "Schemo" to integrate it instantly without local configuration.
+Schemo is available as a Custom Action. The API uses a secret, undocumented `openaiFileResponse` payload array. When ChatGPT receives this array in the standard JSON response, its backend intercepts the base64 string, converts it to an internal file, and drops it into the chat as a native, inline file attachment—bypassing ChatGPT's strict markdown external domain blockers.
 
 ### For Developers (Local Setup)
 

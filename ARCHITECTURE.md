@@ -32,9 +32,10 @@ Student (Claude/ChatGPT)
 │  - core_render_system_plot() (matplotlib + control)  │
 │  - render_circuit_to_image() (schemdraw)             │
 └──────────────────────────────────────────────────────┘
-        │
-        │ generates dashboard URL with encoded params
-        ▼
+        │                            │
+        │ dashboard URL              │ openaiFileResponse (ChatGPT)
+        │                            │ ImageContent (Claude)
+        ▼                            ▼
 ┌──────────────────────────────────────────────────────┐
 │            React Dashboard (Cloudflare Pages)        │
 │            schemo.shaniai.tech                       │
@@ -65,10 +66,10 @@ Serves both Claude (via MCP/SSE) and ChatGPT (via REST API).
 | `FastMCP("Schemo")` | MCP server with DNS rebinding protection configured for the production domain (`api-schemo.shaniai.tech`) and Render subdomain |
 | `FastAPI` app | REST API for ChatGPT Custom Actions |
 | `core_render_system_plot()` | Shared math engine used by both MCP tools and REST endpoints |
-| `@mcp.tool(name="plot")` | Claude MCP tool for generating control system plots |
-| `@mcp.tool(name="circuit")` | Claude MCP tool for rendering circuit schematics |
-| `@app.post("/api/plot")` | ChatGPT REST endpoint for plots |
-| `@app.post("/api/circuit")` | ChatGPT REST endpoint for circuits |
+| `@mcp.tool(name="plot")` | Claude MCP tool for generating control system plots. Returns `ImageContent` block. |
+| `@mcp.tool(name="circuit")` | Claude MCP tool for rendering circuit schematics. Returns `ImageContent` block. |
+| `@app.post("/api/plot")` | ChatGPT REST endpoint. Returns `openaiFileResponse` base64 payload for native file attachments. |
+| `@app.post("/api/circuit")` | ChatGPT REST endpoint. Returns `openaiFileResponse` base64 payload for native file attachments. |
 | `@app.get("/favicon.ico")` | Serves the Schemo logo as browser favicon |
 | `app.mount("/mcp", ...)` | Mounts the FastMCP SSE app into FastAPI at `/mcp` |
 
@@ -78,9 +79,9 @@ Configures `TransportSecuritySettings` with explicit `allowed_hosts` for the pro
 **Tool Naming:**
 Tools use `@mcp.tool(name="plot")` instead of inheriting the Python function name to ensure clean display within AI assistants.
 
-### `chatgpt_widget.py` - ChatGPT iframe Bridge
+### `chatgpt_widget.py` (Deprecated / Legacy)
 
-Registers a `ui://dashboard/{plot_type}/{num}/{den}` MCP Resource. Returns an HTML wrapper containing an iframe that loads the Cloudflare Pages dashboard. This satisfies ChatGPT's UI widget security model while keeping frontend code hosted externally.
+Previously used for ChatGPT iframe bridges via `ui://dashboard/{plot_type}` MCP Resources. This approach was superseded by the `openaiFileResponse` native file attachment strategy for REST endpoints, which proved significantly more reliable for ChatGPT's UI sandbox.
 
 ### `circuit_renderer.py` - Circuit Schematic Engine
 
